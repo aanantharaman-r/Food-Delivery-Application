@@ -124,7 +124,7 @@ export const Profile = () => {
             </div>
 
             <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100">
-              <span className="text-lg font-black text-emerald-700 block">$28.50</span>
+              <span className="text-lg font-black text-emerald-700 block">₹28.50</span>
               <p className="text-[11px] font-bold text-emerald-800">Total Money Saved</p>
             </div>
           </div>
@@ -193,7 +193,7 @@ export const Profile = () => {
                       <span className="text-[11px] text-slate-400">{order.date}</span>
                     </div>
                     <div className="text-right">
-                      <span className="font-bold text-orange-600 block">${order.total?.toFixed(2)}</span>
+                      <span className="font-bold text-orange-600 block">₹{order.total?.toFixed(2)}</span>
                       <span className="text-[10px] text-emerald-600 font-bold">{order.status}</span>
                     </div>
                   </div>

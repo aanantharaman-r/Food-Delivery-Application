@@ -178,7 +178,7 @@ export const CartProvider = ({ children }) => {
 
   const applyCoupon = (coupon) => {
     if (subtotal < (coupon.minOrder || 0)) {
-      return { success: false, message: `Minimum order of $${coupon.minOrder} required for this coupon.` }
+      return { success: false, message: `Minimum order of ₹${coupon.minOrder} required for this coupon.` }
     }
     setAppliedCoupon(coupon)
     return { success: true, message: `Coupon "${coupon.code}" applied successfully!` }

@@ -97,7 +97,7 @@ export const CartPage = () => {
                           {entry.food.name}
                         </h4>
                         <p className="text-xs text-slate-400 mt-0.5">
-                          ${entry.food.price.toFixed(2)} each
+                          ₹{entry.food.price.toFixed(2)} each
                         </p>
                       </div>
                     </div>
@@ -126,7 +126,7 @@ export const CartPage = () => {
 
                       {/* Total for this item */}
                       <span className="text-sm font-black text-slate-900 w-16 text-right">
-                        ${(entry.food.price * entry.quantity).toFixed(2)}
+                        ₹{(entry.food.price * entry.quantity).toFixed(2)}
                       </span>
 
                       <button
@@ -173,7 +173,7 @@ export const CartPage = () => {
                 {/* Item Subtotal */}
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Item Subtotal</span>
-                  <span className="font-semibold text-slate-900">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-900">₹{subtotal.toFixed(2)}</span>
                 </div>
 
                 {/* Applied Discount */}
@@ -182,7 +182,7 @@ export const CartPage = () => {
                     <span className="flex items-center gap-1">
                       <Percent className="w-3.5 h-3.5" /> Coupon Discount ({appliedCoupon?.code})
                     </span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+                    <span>-₹{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
 
@@ -193,7 +193,7 @@ export const CartPage = () => {
                     {deliveryFee === 0 ? (
                       <strong className="text-emerald-600 uppercase font-bold">FREE</strong>
                     ) : (
-                      `$${deliveryFee.toFixed(2)}`
+                      `₹${deliveryFee.toFixed(2)}`
                     )}
                   </span>
                 </div>
@@ -201,13 +201,13 @@ export const CartPage = () => {
                 {/* Restaurant Packaging Fee */}
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Eco-Packaging & Handling</span>
-                  <span>${packagingFee.toFixed(2)}</span>
+                  <span>₹{packagingFee.toFixed(2)}</span>
                 </div>
 
                 {/* Taxes (GST / Sales Tax) */}
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Taxes & Restaurant Charges (8%)</span>
-                  <span>${tax.toFixed(2)}</span>
+                  <span>₹{tax.toFixed(2)}</span>
                 </div>
 
                 {/* Grand Total */}
@@ -217,7 +217,7 @@ export const CartPage = () => {
                     <span className="text-[10px] text-slate-400 font-medium">Inclusive of all duties</span>
                   </div>
                   <span className="text-2xl font-black text-orange-600">
-                    ${total.toFixed(2)}
+                    ₹{total.toFixed(2)}
                   </span>
                 </div>
               </div>

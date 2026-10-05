@@ -115,7 +115,7 @@ export const Home = () => {
                   <div className="absolute bottom-5 left-5 right-5 text-white">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">Chef Recommendation</span>
                     <h3 className="text-xl font-bold">Signature Flame Grill & Gourmet Pizza</h3>
-                    <p className="text-xs text-white/80 mt-1">Starting from just $11.99</p>
+                    <p className="text-xs text-white/80 mt-1">Starting from just ₹11.99</p>
                   </div>
                 </div>
 

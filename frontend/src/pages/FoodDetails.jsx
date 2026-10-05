@@ -108,7 +108,7 @@ export const FoodDetails = () => {
                 {/* Price Display */}
                 <div className="flex items-baseline gap-3 mb-6">
                   <span className="text-3xl font-black text-slate-900">
-                    ${food.price.toFixed(2)}
+                    ₹{food.price.toFixed(2)}
                   </span>
                   <span className="text-xs text-slate-400 font-medium">inclusive of all taxes</span>
                 </div>
@@ -169,7 +169,7 @@ export const FoodDetails = () => {
                   className="flex-1 py-4 px-6 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-black text-sm rounded-2xl shadow-lg shadow-orange-500/25 flex items-center justify-center gap-2 transition-all active:scale-98"
                 >
                   <ShoppingBag className="w-4 h-4" />
-                  Add to Cart • ${(food.price * quantity).toFixed(2)}
+                  Add to Cart • ₹{(food.price * quantity).toFixed(2)}
                 </button>
               </div>
 

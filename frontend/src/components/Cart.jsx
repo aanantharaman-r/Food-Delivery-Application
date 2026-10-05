@@ -40,7 +40,7 @@ export const Cart = () => {
           <div key={item.food.id} className="py-3 flex items-center justify-between gap-3">
             <div className="min-w-0 flex-1">
               <h4 className="font-bold text-xs text-slate-900 truncate">{item.food.name}</h4>
-              <p className="text-[11px] text-slate-400">${item.food.price.toFixed(2)}</p>
+              <p className="text-[11px] text-slate-400">₹{item.food.price.toFixed(2)}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export const Cart = () => {
               </div>
 
               <span className="text-xs font-black text-slate-900 w-12 text-right">
-                ${(item.food.price * item.quantity).toFixed(2)}
+                ₹{(item.food.price * item.quantity).toFixed(2)}
               </span>
             </div>
           </div>
@@ -71,7 +71,7 @@ export const Cart = () => {
       <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-500">Subtotal</span>
-          <span className="font-black text-sm text-slate-900">${total.toFixed(2)}</span>
+          <span className="font-black text-sm text-slate-900">₹{total.toFixed(2)}</span>
         </div>
         <Link
           to="/checkout"

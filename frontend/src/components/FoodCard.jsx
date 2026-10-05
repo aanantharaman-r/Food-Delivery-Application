@@ -88,7 +88,7 @@ export const FoodCard = ({ food }) => {
           <div className="flex flex-col">
             <span className="text-[10px] font-medium text-slate-400">Price</span>
             <span className="text-lg font-black text-slate-900">
-              ${food.price.toFixed(2)}
+              ₹{food.price.toFixed(2)}
             </span>
           </div>
 

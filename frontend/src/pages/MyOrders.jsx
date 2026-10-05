@@ -96,7 +96,7 @@ export const MyOrders = () => {
 
                     <div className="pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
                       <span className="font-black text-slate-900 text-sm">
-                        ${order.total?.toFixed(2)}
+                        ₹{order.total?.toFixed(2)}
                       </span>
 
                       <button
@@ -137,7 +137,7 @@ export const MyOrders = () => {
                             {item.quantity}x {item.name}
                           </span>
                           <span className="font-bold text-slate-900">
-                            ${((item.price || 12.99) * item.quantity).toFixed(2)}
+                            ₹{((item.price || 12.99) * item.quantity).toFixed(2)}
                           </span>
                         </div>
                       ))}
@@ -147,21 +147,21 @@ export const MyOrders = () => {
                     <div className="space-y-2 py-4 border-b border-slate-100 text-xs text-slate-500">
                       <div className="flex justify-between">
                         <span>Items Subtotal</span>
-                        <span>${(selectedOrder.itemTotal || selectedOrder.total).toFixed(2)}</span>
+                        <span>₹{(selectedOrder.itemTotal || selectedOrder.total).toFixed(2)}</span>
                       </div>
                       {selectedOrder.discount > 0 && (
                         <div className="flex justify-between text-emerald-600 font-semibold">
                           <span>Discount Applied</span>
-                          <span>-${selectedOrder.discount.toFixed(2)}</span>
+                          <span>-₹{selectedOrder.discount.toFixed(2)}</span>
                         </div>
                       )}
                       <div className="flex justify-between">
                         <span>Delivery Fee</span>
-                        <span>{selectedOrder.deliveryFee === 0 ? 'FREE' : `$${selectedOrder.deliveryFee || 2.99}`}</span>
+                        <span>{selectedOrder.deliveryFee === 0 ? 'FREE' : `₹${selectedOrder.deliveryFee || 2.99}`}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Taxes & Handling</span>
-                        <span>${(selectedOrder.tax || 2.40).toFixed(2)}</span>
+                        <span>₹{(selectedOrder.tax || 2.40).toFixed(2)}</span>
                       </div>
                     </div>
 
@@ -169,7 +169,7 @@ export const MyOrders = () => {
                     <div className="pt-4 flex justify-between items-center text-sm">
                       <span className="font-black text-slate-900">Paid Total</span>
                       <span className="font-black text-xl text-orange-600">
-                        ${selectedOrder.total?.toFixed(2)}
+                        ₹{selectedOrder.total?.toFixed(2)}
                       </span>
                     </div>
                   </div>

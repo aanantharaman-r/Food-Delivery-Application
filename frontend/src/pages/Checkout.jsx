@@ -222,7 +222,7 @@ export const Checkout = () => {
                       {i.quantity}x {i.food.name}
                     </span>
                     <span className="font-bold text-slate-900">
-                      ${(i.food.price * i.quantity).toFixed(2)}
+                      ₹{(i.food.price * i.quantity).toFixed(2)}
                     </span>
                   </div>
                 ))}
@@ -232,21 +232,21 @@ export const Checkout = () => {
               <div className="space-y-2 py-4 border-b border-slate-100 text-xs text-slate-500">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-slate-800">${subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-slate-800">₹{subtotal.toFixed(2)}</span>
                 </div>
                 {discountAmount > 0 && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Discount</span>
-                    <span>-${discountAmount.toFixed(2)}</span>
+                    <span>-₹{discountAmount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Delivery Fee</span>
-                  <span>{deliveryFee === 0 ? 'FREE' : `$${deliveryFee.toFixed(2)}`}</span>
+                  <span>{deliveryFee === 0 ? 'FREE' : `₹${deliveryFee.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Taxes & Fees</span>
-                  <span>${(tax + packagingFee).toFixed(2)}</span>
+                  <span>₹{(tax + packagingFee).toFixed(2)}</span>
                 </div>
               </div>
 
@@ -254,7 +254,7 @@ export const Checkout = () => {
               <div className="pt-4 flex items-center justify-between">
                 <div>
                   <span className="text-xs text-slate-400 font-semibold uppercase">Total Payable</span>
-                  <h4 className="text-2xl font-black text-orange-600">${total.toFixed(2)}</h4>
+                  <h4 className="text-2xl font-black text-orange-600">₹{total.toFixed(2)}</h4>
                 </div>
 
                 <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full">
@@ -277,7 +277,7 @@ export const Checkout = () => {
                 ) : (
                   <>
                     <Lock className="w-4 h-4" />
-                    <span>Pay ${total.toFixed(2)} & Place Order</span>
+                    <span>Pay ₹{total.toFixed(2)} & Place Order</span>
                   </>
                 )}
               </button>
