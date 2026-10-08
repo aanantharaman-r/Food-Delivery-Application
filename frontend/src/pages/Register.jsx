@@ -27,7 +27,7 @@ export const Register = () => {
 
     showToast({
       title: 'Registration Complete!',
-      description: 'Welcome to Foodie. You received 100 bonus loyalty coins!',
+      description: 'Welcome to Tomato. You received 100 bonus loyalty coins!',
       variant: 'success'
     })
 
@@ -55,7 +55,7 @@ export const Register = () => {
             <Gift className="w-4 h-4" />
           </div>
           <p className="text-xs text-orange-800">
-            <strong>Welcome Deal:</strong> 100 Foodie coins credited upon signing up!
+            <strong>Welcome Deal:</strong> 100 Tomato coins credited upon signing up!
           </p>
         </div>
 

@@ -29,7 +29,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <ToastProvider>
-            <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 antialiased font-sans">
+            <div className="min-h-screen flex flex-col bg-white text-slate-800 antialiased font-sans">
               
               {/* Sticky Modern Top Navigation */}
               <Navbar />
@@ -52,7 +52,7 @@ function App() {
                 </Routes>
               </div>
 
-              {/* Comprehensive Swiggy/Zomato style Footer */}
+              {/* Tomato style Footer */}
               <Footer />
 
               {/* Mobile App-Style Bottom Tab Navigation */}

@@ -1,14 +1,9 @@
 import React, { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { 
-  UtensilsCrossed, 
   Search, 
   ShoppingBag, 
   User, 
-  MapPin, 
-  ChevronDown, 
-  Sparkles, 
-  Percent,
   Menu,
   X,
   LogOut,
@@ -20,8 +15,9 @@ import { useAuth } from '../context/AuthContext'
 export const Navbar = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  const { cartCount, selectedAddress } = useCart()
+  const { cartCount } = useCart()
   const { isLoggedIn, user, logout } = useAuth()
+  const [searchOpen, setSearchOpen] = useState(false)
   const [searchVal, setSearchVal] = useState('')
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -31,148 +27,152 @@ export const Navbar = () => {
     if (searchVal.trim()) {
       navigate(`/search?q=${encodeURIComponent(searchVal.trim())}`)
       setSearchVal('')
+      setSearchOpen(false)
       setMobileMenuOpen(false)
     }
   }
 
-  const isActive = (path) => location.pathname === path
+  const scrollToSection = (id) => {
+    setMobileMenuOpen(false)
+    if (location.pathname !== '/') {
+      navigate('/')
+      setTimeout(() => {
+        const el = document.getElementById(id)
+        if (el) el.scrollIntoView({ behavior: 'smooth' })
+      }, 100)
+    } else {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-100 shadow-xs">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-4">
+        <div className="flex items-center justify-between h-20">
           
-          {/* Logo & Delivery Location */}
+          {/* Logo - Tomato. */}
+          <Link to="/" className="flex items-center gap-1 group">
+            <span className="text-3xl font-black tracking-tight text-[#ff4c24] font-sans">
+              Tomato<span className="text-[#ff4c24]">.</span>
+            </span>
+          </Link>
+
+          {/* Desktop Nav Links: Home, Menu, Mobile App, Contact Us */}
+          <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
+            <Link 
+              to="/" 
+              className={`transition-colors hover:text-[#ff4c24] ${
+                location.pathname === '/' ? 'text-slate-900 font-semibold border-b-2 border-slate-900 pb-1' : ''
+              }`}
+            >
+              home
+            </Link>
+            <button 
+              onClick={() => scrollToSection('explore-menu')} 
+              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+            >
+              menu
+            </button>
+            <button 
+              onClick={() => scrollToSection('download-app')} 
+              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+            >
+              mobile-app
+            </button>
+            <button 
+              onClick={() => scrollToSection('contact-us')} 
+              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+            >
+              contact us
+            </button>
+          </nav>
+
+          {/* Right Action Icons & Sign In Button */}
           <div className="flex items-center gap-6">
-            <Link to="/" className="flex items-center gap-2.5 group">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-orange-600 via-amber-500 to-rose-500 flex items-center justify-center shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform duration-300">
-                <UtensilsCrossed className="w-6 h-6 text-white stroke-[2.5]" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-2xl font-black tracking-tight text-slate-900 group-hover:text-orange-600 transition-colors">
-                  Foodie<span className="text-orange-500">.</span>
-                </span>
-                <span className="text-[10px] tracking-widest font-semibold uppercase text-slate-400 -mt-1 hidden sm:block">
-                  Fast & Delicious
-                </span>
-              </div>
-            </Link>
-
-            {/* Quick Location Badge */}
-            <div 
-              onClick={() => navigate('/profile')} 
-              className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 hover:bg-orange-50/80 border border-slate-200/60 hover:border-orange-200 transition-all cursor-pointer group"
-            >
-              <MapPin className="w-4 h-4 text-orange-500 group-hover:animate-bounce" />
-              <div className="text-xs">
-                <span className="font-bold text-slate-800 capitalize mr-1">{selectedAddress?.label || 'Home'}:</span>
-                <span className="text-slate-500 max-w-[150px] truncate inline-block align-bottom">
-                  {selectedAddress?.street || 'Select delivery address'}
-                </span>
-              </div>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400 group-hover:text-orange-500 transition-colors" />
+            
+            {/* Search Icon / Toggle */}
+            <div className="relative">
+              {searchOpen ? (
+                <form onSubmit={handleSearchSubmit} className="flex items-center">
+                  <input
+                    type="text"
+                    autoFocus
+                    value={searchVal}
+                    onChange={(e) => setSearchVal(e.target.value)}
+                    placeholder="Search dishes..."
+                    className="w-48 sm:w-64 py-1.5 pl-3 pr-8 text-sm border border-slate-300 rounded-full outline-none focus:border-[#ff4c24]"
+                  />
+                  <button 
+                    type="button" 
+                    onClick={() => setSearchOpen(false)}
+                    className="absolute right-2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </form>
+              ) : (
+                <button
+                  onClick={() => setSearchOpen(true)}
+                  className="text-slate-700 hover:text-[#ff4c24] transition-colors p-1 cursor-pointer"
+                  aria-label="Search"
+                >
+                  <Search className="w-5 h-5 stroke-[2.2]" />
+                </button>
+              )}
             </div>
-          </div>
 
-          {/* Desktop Search Bar */}
-          <form 
-            onSubmit={handleSearchSubmit} 
-            className="hidden md:flex flex-1 max-w-md relative mx-4"
-          >
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
-            <input
-              type="text"
-              value={searchVal}
-              onChange={(e) => setSearchVal(e.target.value)}
-              placeholder="Search for restaurants, burgers, pizza, sushi..."
-              className="w-full pl-11 pr-4 py-2.5 text-sm bg-slate-100/80 hover:bg-slate-100 focus:bg-white rounded-full border border-transparent focus:border-orange-500 focus:ring-4 focus:ring-orange-500/10 transition-all outline-none text-slate-800 placeholder-slate-400"
-            />
-          </form>
-
-          {/* Desktop Navigation Links & Actions */}
-          <div className="hidden md:flex items-center gap-5">
-            <Link 
-              to="/restaurants" 
-              className={`text-sm font-semibold transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg ${
-                isActive('/restaurants') 
-                  ? 'text-orange-600 bg-orange-50' 
-                  : 'text-slate-600 hover:text-orange-600 hover:bg-slate-50'
-              }`}
-            >
-              <Sparkles className="w-4 h-4" />
-              Restaurants
-            </Link>
-
-            <Link 
-              to="/my-orders" 
-              className={`text-sm font-semibold transition-colors flex items-center gap-1.5 px-3 py-2 rounded-lg ${
-                isActive('/my-orders') 
-                  ? 'text-orange-600 bg-orange-50' 
-                  : 'text-slate-600 hover:text-orange-600 hover:bg-slate-50'
-              }`}
-            >
-              <Clock className="w-4 h-4" />
-              Orders
-            </Link>
-
-            {/* Cart Button with Count Badge */}
+            {/* Cart Icon with notification dot */}
             <Link
               to="/cart"
-              className="relative flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-slate-900 hover:bg-orange-600 text-white font-medium text-sm transition-all shadow-md shadow-slate-900/10 hover:shadow-orange-500/20 group"
+              className="relative text-slate-700 hover:text-[#ff4c24] transition-colors p-1 cursor-pointer"
+              aria-label="View Cart"
             >
-              <ShoppingBag className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              <span>Cart</span>
+              <ShoppingBag className="w-5 h-5 stroke-[2.2]" />
               {cartCount > 0 && (
-                <span className="bg-orange-500 group-hover:bg-white group-hover:text-orange-600 text-white text-xs font-bold px-2 py-0.5 rounded-full transition-colors">
-                  {cartCount}
-                </span>
+                <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-[#ff4c24] rounded-full ring-2 ring-white" />
               )}
             </Link>
 
-            {/* Auth / Profile Area */}
+            {/* Sign In button or Profile Avatar */}
             {isLoggedIn ? (
               <div className="relative">
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-                  className="flex items-center gap-2 p-1 pl-2 rounded-full hover:bg-slate-100 border border-slate-200 transition-colors"
+                  className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
                 >
                   <img
                     src={user.avatar}
                     alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-orange-500/40"
+                    className="w-8 h-8 rounded-full object-cover ring-2 ring-[#ff4c24]"
                   />
-                  <span className="text-xs font-semibold text-slate-800 max-w-[90px] truncate hidden lg:inline">
-                    {user.name.split(' ')[0]}
-                  </span>
-                  <ChevronDown className="w-3.5 h-3.5 text-slate-400 mr-1" />
                 </button>
 
                 {profileDropdownOpen && (
                   <div 
-                    className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-2xl border border-slate-100 py-2 z-50 animate-in fade-in slide-in-from-top-2"
+                    className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50"
                     onMouseLeave={() => setProfileDropdownOpen(false)}
                   >
-                    <div className="px-4 py-3 border-b border-slate-100">
-                      <p className="text-xs text-slate-400">Signed in as</p>
-                      <p className="text-sm font-bold text-slate-900 truncate">{user.name}</p>
-                      <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
                     </div>
                     
                     <Link
                       to="/profile"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"
                     >
-                      <User className="w-4 h-4" />
+                      <User className="w-3.5 h-3.5" />
                       Manage Profile
                     </Link>
                     <Link
                       to="/my-orders"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-slate-700 hover:bg-orange-50 hover:text-orange-600 transition-colors"
+                      className="flex items-center gap-2 px-4 py-2 text-xs text-slate-700 hover:bg-slate-50"
                     >
-                      <Clock className="w-4 h-4" />
-                      Order History & Tracking
+                      <Clock className="w-3.5 h-3.5" />
+                      Orders
                     </Link>
                     
                     <div className="border-t border-slate-100 mt-1 pt-1">
@@ -181,9 +181,9 @@ export const Navbar = () => {
                           logout()
                           setProfileDropdownOpen(false)
                         }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 transition-colors text-left"
+                        className="w-full flex items-center gap-2 px-4 py-2 text-xs text-rose-600 hover:bg-rose-50 text-left"
                       >
-                        <LogOut className="w-4 h-4" />
+                        <LogOut className="w-3.5 h-3.5" />
                         Sign Out
                       </button>
                     </div>
@@ -191,113 +191,71 @@ export const Navbar = () => {
                 )}
               </div>
             ) : (
-              <div className="flex items-center gap-2">
-                <Link
-                  to="/login"
-                  className="text-sm font-semibold text-slate-700 hover:text-orange-600 px-3 py-2 rounded-lg transition-colors"
-                >
-                  Log in
-                </Link>
-                <Link
-                  to="/register"
-                  className="text-sm font-semibold text-white bg-orange-600 hover:bg-orange-500 px-4 py-2 rounded-full shadow-sm hover:shadow-md transition-all"
-                >
-                  Sign up
-                </Link>
-              </div>
+              <Link
+                to="/login"
+                className="hidden sm:inline-flex items-center justify-center px-6 py-2 rounded-full border border-slate-400/80 hover:border-[#ff4c24] text-slate-700 hover:text-[#ff4c24] text-sm font-medium transition-all duration-200"
+              >
+                sign in
+              </Link>
             )}
-          </div>
 
-          {/* Mobile Right Controls */}
-          <div className="flex items-center gap-2 md:hidden">
-            <Link
-              to="/cart"
-              className="relative p-2 text-slate-700 hover:text-orange-600 transition-colors"
-            >
-              <ShoppingBag className="w-6 h-6" />
-              {cartCount > 0 && (
-                <span className="absolute top-1 right-1 bg-orange-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-
+            {/* Mobile menu toggle */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-slate-700 hover:text-orange-600 transition-colors"
-              aria-label="Toggle menu"
+              className="p-1 text-slate-700 md:hidden cursor-pointer"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
+
           </div>
 
         </div>
 
-        {/* Mobile Dropdown Menu */}
+        {/* Mobile dropdown menu */}
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-slate-100 space-y-3 animate-in fade-in">
-            <form onSubmit={handleSearchSubmit} className="relative">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={searchVal}
-                onChange={(e) => setSearchVal(e.target.value)}
-                placeholder="Search food or restaurants..."
-                className="w-full pl-10 pr-4 py-2 bg-slate-100 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
-              />
-            </form>
-
-            <div className="flex flex-col gap-1 pt-2">
+            <div className="flex flex-col gap-2">
               <Link
                 to="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg"
+                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
               >
                 Home
               </Link>
-              <Link
-                to="/restaurants"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg"
+              <button
+                onClick={() => scrollToSection('explore-menu')}
+                className="text-left px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
               >
-                All Restaurants
-              </Link>
-              <Link
-                to="/my-orders"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg"
+                Menu
+              </button>
+              <button
+                onClick={() => scrollToSection('download-app')}
+                className="text-left px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
               >
-                My Orders & Live Tracking
-              </Link>
-              <Link
-                to="/profile"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-orange-600 hover:bg-orange-50 rounded-lg"
+                Mobile App
+              </button>
+              <button
+                onClick={() => scrollToSection('contact-us')}
+                className="text-left px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
               >
-                Profile & Saved Addresses
-              </Link>
+                Contact Us
+              </button>
               
               {!isLoggedIn && (
-                <div className="pt-2 flex gap-2">
+                <div className="pt-2 px-3">
                   <Link
                     to="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 text-center py-2 bg-slate-100 text-slate-800 rounded-xl text-sm font-semibold"
+                    className="block text-center py-2 px-4 rounded-full border border-[#ff4c24] text-[#ff4c24] text-sm font-medium"
                   >
-                    Log In
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex-1 text-center py-2 bg-orange-600 text-white rounded-xl text-sm font-semibold"
-                  >
-                    Register
+                    Sign In
                   </Link>
                 </div>
               )}
             </div>
           </div>
         )}
+
       </div>
     </header>
   )

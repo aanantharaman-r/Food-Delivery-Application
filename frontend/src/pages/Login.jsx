@@ -40,9 +40,9 @@ export const Login = () => {
             <UtensilsCrossed className="w-6 h-6 stroke-[2.5]" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Welcome to Foodie
+            Welcome to <span className="text-[#ff4c24]">Tomato.</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-1">Sign in to your food lover account</p>
+          <p className="text-xs text-slate-400 mt-1">Sign in to your account</p>
         </div>
 
         {/* Form */}

@@ -1,19 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { 
-  ShoppingBag, 
-  Trash2, 
-  ArrowRight, 
-  ShieldCheck, 
-  Clock, 
-  Tag, 
-  Percent,
-  Plus,
-  Minus
-} from 'lucide-react'
+import { X, ShoppingBag, Plus, Minus, ArrowRight } from 'lucide-react'
 import { useCart } from '../context/CartContext'
-import { CouponSection } from '../components/CouponSection'
-import { AddressSelector } from '../components/AddressSelector'
 
 export const CartPage = () => {
   const navigate = useNavigate()
@@ -24,219 +12,218 @@ export const CartPage = () => {
     decreaseQuantity, 
     subtotal, 
     deliveryFee, 
-    packagingFee, 
-    tax, 
-    discountAmount, 
     total, 
     cartCount,
+    applyCoupon,
     appliedCoupon
   } = useCart()
 
+  const [promoInput, setPromoInput] = useState('')
+  const [promoMessage, setPromoMessage] = useState('')
+
+  const handleApplyPromo = (e) => {
+    e.preventDefault()
+    if (!promoInput.trim()) return
+    const code = promoInput.trim().toUpperCase()
+    if (code === 'FEAST50' || code === 'FOODIE20' || code === 'TOMATO') {
+      applyCoupon({
+        code: code,
+        discountPercent: 20,
+        maxDiscount: 5,
+        minOrder: 10
+      })
+      setPromoMessage('Promo code applied successfully!')
+    } else {
+      setPromoMessage('Invalid promo code. Try TOMATO or FEAST50')
+    }
+  }
+
+  // Calculate delivery fee: free if cart is empty, else $2 (or standard)
+  const effectiveDeliveryFee = items.length === 0 ? 0 : 2
+  const effectiveTotal = items.length === 0 ? 0 : subtotal + effectiveDeliveryFee - (appliedCoupon ? 2 : 0)
+
   if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] bg-slate-50 flex items-center justify-center p-6">
-        <div className="bg-white rounded-3xl p-10 max-w-md w-full text-center shadow-xl border border-slate-100">
-          <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-orange-100 text-orange-600 rounded-3xl">
+      <div className="min-h-[65vh] bg-white flex items-center justify-center p-6">
+        <div className="max-w-md w-full text-center space-y-4">
+          <div className="w-20 h-20 mx-auto flex items-center justify-center bg-orange-50 text-[#ff4c24] rounded-full">
             <ShoppingBag className="w-10 h-10" />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight mb-2">
-            Your Cart is Empty
+          <h2 className="text-2xl font-bold text-slate-800">
+            Your cart is empty
           </h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed">
-            Good food is always just around the corner. Explore restaurants and add tasty meals!
+          <p className="text-sm text-slate-500">
+            Looks like you haven't added anything to your cart yet. Explore our delicious menu!
           </p>
-          <Link
-            to="/restaurants"
-            className="inline-flex items-center justify-center gap-2 w-full py-4 px-6 rounded-2xl bg-orange-600 hover:bg-orange-500 text-white font-bold text-sm shadow-lg shadow-orange-500/20 transition-all"
-          >
-            Explore Restaurants
-          </Link>
+          <div className="pt-2">
+            <Link
+              to="/"
+              className="inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#ff4c24] hover:bg-[#e03a14] text-white font-semibold text-sm transition-all shadow-md cursor-pointer"
+            >
+              Explore Menu
+            </Link>
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 pb-28">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white py-10 pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         
-        <div className="mb-8">
-          <h1 className="text-3xl font-black text-slate-900 tracking-tight">
-            Review Your Order ({cartCount} {cartCount === 1 ? 'item' : 'items'})
-          </h1>
-          <p className="text-xs text-slate-500 mt-1">Review selected dishes, apply discounts, and confirm delivery address.</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* Left Column: Cart Items List & Delivery Address Selection */}
-          <div className="lg:col-span-7 space-y-6">
-            
-            {/* Cart Items Box */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xs">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-4">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
-                  Dish Items
-                </span>
-                <span className="text-xs text-slate-500">
-                  From {items[0]?.food?.restaurantName || 'Foodie Kitchen'}
-                </span>
-              </div>
-
-              <div className="divide-y divide-slate-100">
-                {items.map((entry) => (
-                  <div key={entry.food.id} className="py-4 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3.5 min-w-0">
+        {/* Table of Cart Items */}
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-400 text-xs sm:text-sm font-normal">
+                <th className="py-3 font-normal">Items</th>
+                <th className="py-3 font-normal">Title</th>
+                <th className="py-3 font-normal">Price</th>
+                <th className="py-3 font-normal">Quantity</th>
+                <th className="py-3 font-normal">Total</th>
+                <th className="py-3 font-normal text-center">Remove</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-slate-700 text-sm">
+              {items.map((entry) => {
+                const itemTotal = entry.food.price * entry.quantity
+                return (
+                  <tr key={entry.food.id} className="hover:bg-slate-50/50 transition-colors">
+                    {/* Item Image */}
+                    <td className="py-4">
                       <img
                         src={entry.food.image}
                         alt={entry.food.name}
-                        className="w-16 h-16 rounded-2xl object-cover shrink-0"
+                        className="w-14 h-14 rounded-lg object-cover"
                       />
-                      <div className="min-w-0">
-                        <h4 className="font-bold text-sm text-slate-900 truncate">
-                          {entry.food.name}
-                        </h4>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          ₹{entry.food.price.toFixed(2)} each
-                        </p>
-                      </div>
-                    </div>
+                    </td>
 
-                    <div className="flex items-center gap-3 shrink-0">
-                      {/* Quantity Controller */}
-                      <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-2xl p-1">
+                    {/* Title */}
+                    <td className="py-4 font-medium text-slate-800 max-w-[200px] truncate">
+                      {entry.food.name}
+                    </td>
+
+                    {/* Price */}
+                    <td className="py-4 font-medium">
+                      ${entry.food.price.toFixed(0)}
+                    </td>
+
+                    {/* Quantity with +/- controls */}
+                    <td className="py-4">
+                      <div className="inline-flex items-center gap-2 border border-slate-200 rounded-lg px-2 py-1 bg-white">
                         <button
                           onClick={() => decreaseQuantity(entry.food.id)}
-                          className="w-6 h-6 rounded-lg bg-white text-slate-700 font-bold flex items-center justify-center hover:bg-slate-200 transition-colors shadow-xs"
+                          className="text-slate-500 hover:text-rose-500 p-0.5 cursor-pointer"
                           aria-label="Decrease quantity"
                         >
                           <Minus className="w-3 h-3" />
                         </button>
-                        <span className="text-xs font-bold text-slate-900 min-w-4 text-center">
+                        <span className="font-bold text-xs min-w-4 text-center">
                           {entry.quantity}
                         </span>
                         <button
                           onClick={() => increaseQuantity(entry.food.id)}
-                          className="w-6 h-6 rounded-lg bg-orange-600 text-white font-bold flex items-center justify-center hover:bg-orange-700 transition-colors shadow-xs"
+                          className="text-slate-500 hover:text-emerald-500 p-0.5 cursor-pointer"
                           aria-label="Increase quantity"
                         >
                           <Plus className="w-3 h-3" />
                         </button>
                       </div>
+                    </td>
 
-                      {/* Total for this item */}
-                      <span className="text-sm font-black text-slate-900 w-16 text-right">
-                        ₹{(entry.food.price * entry.quantity).toFixed(2)}
-                      </span>
+                    {/* Total */}
+                    <td className="py-4 font-semibold text-slate-900">
+                      ${itemTotal.toFixed(0)}
+                    </td>
 
+                    {/* Remove 'x' button */}
+                    <td className="py-4 text-center">
                       <button
                         onClick={() => removeItem(entry.food.id)}
-                        className="p-1.5 text-slate-300 hover:text-rose-500 rounded-lg transition-colors"
-                        title="Remove Item"
+                        className="text-slate-400 hover:text-[#ff4c24] p-1 transition-colors cursor-pointer"
+                        title="Remove item"
                       >
-                        <Trash2 className="w-4 h-4" />
+                        <X className="w-4 h-4 stroke-[2.5] mx-auto" />
                       </button>
-                    </div>
-                  </div>
-                ))}
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Bottom Section: Cart Totals on Left, Promo Code on Right */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-12 items-start pt-6">
+          
+          {/* Cart Totals Box */}
+          <div className="md:col-span-6 space-y-4">
+            <h3 className="text-xl font-bold text-slate-800">
+              Cart Totals
+            </h3>
+
+            <div className="space-y-3 text-sm text-slate-600">
+              <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                <span>Subtotal</span>
+                <span className="font-medium text-slate-800">${subtotal.toFixed(0)}</span>
               </div>
 
-              {/* Add More Items Link */}
-              <div className="pt-4 border-t border-slate-100 flex justify-end">
-                <Link
-                  to="/restaurants"
-                  className="text-xs font-bold text-orange-600 hover:text-orange-700 hover:underline"
-                >
-                  + Add more items from menu
-                </Link>
+              <div className="flex items-center justify-between py-2 border-b border-slate-200">
+                <span>Delivery Fee</span>
+                <span className="font-medium text-slate-800">${effectiveDeliveryFee.toFixed(0)}</span>
+              </div>
+
+              {appliedCoupon && (
+                <div className="flex items-center justify-between py-2 border-b border-slate-200 text-emerald-600">
+                  <span>Promo Discount ({appliedCoupon.code})</span>
+                  <span className="font-medium">-$2</span>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between py-2 text-base font-bold text-slate-900">
+                <span>Total</span>
+                <span>${effectiveTotal.toFixed(0)}</span>
               </div>
             </div>
 
-            {/* Address Selector Component */}
-            <AddressSelector />
-
-          </div>
-
-          {/* Right Column: Coupons & Real-World Bill Summary */}
-          <div className="lg:col-span-5 space-y-6">
-            
-            {/* Coupon Section */}
-            <CouponSection />
-
-            {/* Bill Details Breakdown Box */}
-            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-100 shadow-xs">
-              <h3 className="font-black text-slate-900 text-lg tracking-tight mb-4">
-                Bill Summary
-              </h3>
-
-              <div className="space-y-3 text-xs">
-                {/* Item Subtotal */}
-                <div className="flex items-center justify-between text-slate-600">
-                  <span>Item Subtotal</span>
-                  <span className="font-semibold text-slate-900">₹{subtotal.toFixed(2)}</span>
-                </div>
-
-                {/* Applied Discount */}
-                {discountAmount > 0 && (
-                  <div className="flex items-center justify-between text-emerald-600 font-semibold">
-                    <span className="flex items-center gap-1">
-                      <Percent className="w-3.5 h-3.5" /> Coupon Discount ({appliedCoupon?.code})
-                    </span>
-                    <span>-₹{discountAmount.toFixed(2)}</span>
-                  </div>
-                )}
-
-                {/* Delivery Fee */}
-                <div className="flex items-center justify-between text-slate-600">
-                  <span>Delivery Partner Fee</span>
-                  <span>
-                    {deliveryFee === 0 ? (
-                      <strong className="text-emerald-600 uppercase font-bold">FREE</strong>
-                    ) : (
-                      `₹${deliveryFee.toFixed(2)}`
-                    )}
-                  </span>
-                </div>
-
-                {/* Restaurant Packaging Fee */}
-                <div className="flex items-center justify-between text-slate-600">
-                  <span>Eco-Packaging & Handling</span>
-                  <span>₹{packagingFee.toFixed(2)}</span>
-                </div>
-
-                {/* Taxes (GST / Sales Tax) */}
-                <div className="flex items-center justify-between text-slate-600">
-                  <span>Taxes & Restaurant Charges (8%)</span>
-                  <span>₹{tax.toFixed(2)}</span>
-                </div>
-
-                {/* Grand Total */}
-                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-base">
-                  <div className="flex flex-col">
-                    <span className="font-black text-slate-900 text-lg">TO PAY</span>
-                    <span className="text-[10px] text-slate-400 font-medium">Inclusive of all duties</span>
-                  </div>
-                  <span className="text-2xl font-black text-orange-600">
-                    ₹{total.toFixed(2)}
-                  </span>
-                </div>
-              </div>
-
-              {/* Proceed to Checkout CTA */}
+            <div className="pt-4">
               <button
                 onClick={() => navigate('/checkout')}
-                className="w-full mt-6 py-4 rounded-2xl bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-black text-sm shadow-xl shadow-orange-500/25 flex items-center justify-center gap-2 transition-all active:scale-98"
+                className="w-full sm:w-auto px-8 py-3.5 bg-[#ff4c24] hover:bg-[#e03a14] text-white font-semibold text-xs uppercase tracking-wider rounded-md transition-all shadow-md cursor-pointer"
               >
-                Proceed to Checkout
-                <ArrowRight className="w-4 h-4" />
+                PROCEED TO CHECKOUT
               </button>
-
-              <div className="mt-4 flex items-center justify-center gap-2 text-[11px] text-slate-400">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span>Safe and contactless delivery guaranteed</span>
-              </div>
             </div>
+          </div>
 
+          {/* Promo code on Right */}
+          <div className="md:col-span-6 space-y-3">
+            <p className="text-sm text-slate-500">
+              If you have a promo code, Enter it here
+            </p>
+
+            <form onSubmit={handleApplyPromo} className="flex max-w-md">
+              <input
+                type="text"
+                value={promoInput}
+                onChange={(e) => setPromoInput(e.target.value)}
+                placeholder="promo code"
+                className="flex-1 bg-slate-100 text-sm px-4 py-3 rounded-l-md outline-none text-slate-800 placeholder-slate-400"
+              />
+              <button
+                type="submit"
+                className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-7 py-3 rounded-r-md uppercase transition-colors cursor-pointer"
+              >
+                Submit
+              </button>
+            </form>
+
+            {promoMessage && (
+              <p className="text-xs font-medium text-emerald-600">
+                {promoMessage}
+              </p>
+            )}
           </div>
 
         </div>

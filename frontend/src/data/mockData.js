@@ -1,12 +1,76 @@
 export const CATEGORIES = [
-  { id: 'all', name: 'All', icon: '🍽️' },
-  { id: 'burgers', name: 'Burgers', icon: '🍔' },
-  { id: 'pizza', name: 'Pizza', icon: '🍕' },
-  { id: 'biryani', name: 'Biryani & Bowls', icon: '🍚' },
-  { id: 'sushi', name: 'Sushi & Asian', icon: '🍣' },
-  { id: 'mexican', name: 'Tacos & Wraps', icon: '🌮' },
-  { id: 'desserts', name: 'Desserts & Cakes', icon: '🍩' },
-  { id: 'drinks', name: 'Beverages', icon: '🥤' }
+  { 
+    id: 'all', 
+    name: 'All Dishes', 
+    icon: '🍽️',
+    image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'salad', 
+    name: 'Salad', 
+    icon: '🥗',
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'rolls', 
+    name: 'Rolls', 
+    icon: '🌯',
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'desserts', 
+    name: 'Deserts', 
+    icon: '🍰',
+    image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'sandwich', 
+    name: 'Sandwich', 
+    icon: '🥪',
+    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'cake', 
+    name: 'Cake', 
+    icon: '🎂',
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'pureveg', 
+    name: 'Pure Veg', 
+    icon: '🥦',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'pasta', 
+    name: 'Pasta', 
+    icon: '🍝',
+    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'noodles', 
+    name: 'Noodles', 
+    icon: '🍜',
+    image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'burgers', 
+    name: 'Burgers', 
+    icon: '🍔',
+    image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'pizza', 
+    name: 'Pizza', 
+    icon: '🍕',
+    image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=300&q=80' 
+  },
+  { 
+    id: 'biryani', 
+    name: 'Biryani', 
+    icon: '🍚',
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=300&q=80' 
+  }
 ]
 
 export const OFFERS = [
@@ -375,6 +439,142 @@ export const FOOD_ITEMS = [
     calories: '480 kcal',
     prepTime: '10 mins',
     ingredients: ['Belgian dark chocolate', 'Cocoa butter', 'Vanilla bean', 'Fresh berries']
+  },
+  {
+    id: 113,
+    restaurantId: 1,
+    restaurantName: 'Green Garden Harvest',
+    name: 'Mediterranean Greek Salad',
+    category: 'salad',
+    price: 12.00,
+    rating: 4.8,
+    reviewsCount: 195,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
+    description: 'Crisp romaine lettuce, vine tomatoes, kalamata olives, crunchy cucumbers, and authentic Greek feta cheese in olive oil lemon vinaigrette.',
+    calories: '320 kcal',
+    prepTime: '10 mins',
+    ingredients: ['Romaine lettuce', 'Feta cheese', 'Kalamata olives', 'Extra virgin olive oil', 'Cucumbers']
+  },
+  {
+    id: 114,
+    restaurantId: 3,
+    restaurantName: 'Golden Wok Express',
+    name: 'Crispy Veggie Spring Rolls (4 pcs)',
+    category: 'rolls',
+    price: 8.50,
+    rating: 4.7,
+    reviewsCount: 230,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
+    description: 'Golden crunchy wrappers packed with seasoned shredded vegetables, glass noodles, and served with sweet Thai chili dipping sauce.',
+    calories: '380 kcal',
+    prepTime: '12 mins',
+    ingredients: ['Spring roll pastry', 'Shredded cabbage', 'Carrots', 'Sweet chili sauce']
+  },
+  {
+    id: 115,
+    restaurantId: 1,
+    restaurantName: 'The Deli Corner',
+    name: 'Smoked Turkey & Avocado Club Sandwich',
+    category: 'sandwich',
+    price: 10.99,
+    rating: 4.8,
+    reviewsCount: 310,
+    isVeg: false,
+    isBestseller: false,
+    image: 'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?auto=format&fit=crop&w=800&q=80',
+    description: 'Triple-decker toasted artisan sourdough, tender smoked turkey breast, crispy bacon, ripe avocado, vine tomatoes, and Dijon mayo.',
+    calories: '550 kcal',
+    prepTime: '10 mins',
+    ingredients: ['Sourdough', 'Smoked turkey', 'Bacon', 'Avocado', 'Dijon mustard']
+  },
+  {
+    id: 116,
+    restaurantId: 6,
+    restaurantName: 'Sweet Haven Patisserie',
+    name: 'Red Velvet Supreme Cream Cake',
+    category: 'cake',
+    price: 9.50,
+    rating: 4.9,
+    reviewsCount: 520,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=800&q=80',
+    description: 'Velvety cocoa sponge layered with silky smooth Madagascar vanilla cream cheese frosting and dusted with red velvet crumbs.',
+    calories: '490 kcal',
+    prepTime: '8 mins',
+    ingredients: ['Cocoa', 'Cream cheese frosting', 'Vanilla extract', 'Buttermilk']
+  },
+  {
+    id: 117,
+    restaurantId: 2,
+    restaurantName: 'Artisan Woodfire Pizza Co.',
+    name: 'Creamy Garlic Alfredo Penne Pasta',
+    category: 'pasta',
+    price: 14.50,
+    rating: 4.8,
+    reviewsCount: 380,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?auto=format&fit=crop&w=800&q=80',
+    description: 'Penne rigate tossed in rich roasted garlic parmesan cream sauce with sauteed broccoli florets and fresh Italian parsley.',
+    calories: '670 kcal',
+    prepTime: '15 mins',
+    ingredients: ['Penne pasta', 'Parmigiano-Reggiano', 'Roasted garlic', 'Heavy cream', 'Broccoli']
+  },
+  {
+    id: 118,
+    restaurantId: 3,
+    restaurantName: 'Zenith Sushi & Ramen Bar',
+    name: 'Spicy Dan Dan Garlic Noodles',
+    category: 'noodles',
+    price: 13.99,
+    rating: 4.9,
+    reviewsCount: 410,
+    isVeg: false,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?auto=format&fit=crop&w=800&q=80',
+    description: 'Wok-tossed wheat noodles in rich sesame Sichuan chili broth, minced seasoned meat, crushed roasted peanuts, and fresh scallions.',
+    calories: '610 kcal',
+    prepTime: '12 mins',
+    ingredients: ['Wheat noodles', 'Sichuan chili oil', 'Sesame paste', 'Ground meat', 'Peanuts']
+  },
+  {
+    id: 119,
+    restaurantId: 4,
+    restaurantName: 'Green Garden Harvest',
+    name: 'Farm Fresh Garden Salad',
+    category: 'salad',
+    price: 9.99,
+    rating: 4.6,
+    reviewsCount: 160,
+    isVeg: true,
+    isBestseller: false,
+    image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?auto=format&fit=crop&w=800&q=80',
+    description: 'Fresh seasonal greens, cherry tomatoes, shaved rainbow carrots, radishes, and toasted pumpkin seeds with honey mustard vinaigrette.',
+    calories: '280 kcal',
+    prepTime: '8 mins',
+    ingredients: ['Mixed greens', 'Cherry tomatoes', 'Rainbow carrots', 'Pumpkin seeds', 'Honey mustard']
+  },
+  {
+    id: 120,
+    restaurantId: 2,
+    restaurantName: 'Artisan Woodfire Pizza Co.',
+    name: 'Classic Baked Lasagna Bolognese',
+    category: 'pasta',
+    price: 16.50,
+    rating: 4.9,
+    reviewsCount: 460,
+    isVeg: false,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1574894709920-11b28e7367e3?auto=format&fit=crop&w=800&q=80',
+    description: 'Layers of fresh pasta sheets, slow-simmered beef ragù, silky bechamel sauce, melted mozzarella, and fresh basil.',
+    calories: '780 kcal',
+    prepTime: '20 mins',
+    ingredients: ['Pasta sheets', 'Beef Bolognese ragù', 'Béchamel sauce', 'Mozzarella', 'Parmesan']
   }
 ]
 
