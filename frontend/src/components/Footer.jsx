@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Mail, Phone } from 'lucide-react'
+import { Mail, Phone, UtensilsCrossed } from 'lucide-react'
 
 export const Footer = () => {
   return (
@@ -8,11 +8,14 @@ export const Footer = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-10 pb-12">
           
-          {/* Col 1: Tomato Logo & Intro & Social Icons */}
+          {/* Col 1: Foodie Logo & Intro & Social Icons */}
           <div className="md:col-span-5 space-y-5">
-            <Link to="/" className="inline-block">
+            <Link to="/" className="inline-flex items-center gap-2 group">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+                <UtensilsCrossed className="w-4 h-4 stroke-[2.5]" />
+              </div>
               <span className="text-3xl font-black text-[#ff4c24] tracking-tight">
-                Tomato<span className="text-[#ff4c24]">.</span>
+                Foodie<span className="text-[#ff4c24]">.</span>
               </span>
             </Link>
             <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
@@ -82,7 +85,7 @@ export const Footer = () => {
               </li>
               <li className="flex items-center gap-2">
                 <Mail className="w-4 h-4 text-[#ff4c24]" />
-                <span>contact@tomato.com</span>
+                <span>contact@foodie.com</span>
               </li>
             </ul>
           </div>
@@ -91,7 +94,7 @@ export const Footer = () => {
 
         {/* Divider & Copyright */}
         <div className="pt-8 border-t border-slate-700/80 text-center text-xs text-slate-400">
-          <p>Copyright {new Date().getFullYear()} © Tomato.com - All Right Reserved.</p>
+          <p>Copyright {new Date().getFullYear()} © Foodie.com - All Right Reserved.</p>
         </div>
 
       </div>

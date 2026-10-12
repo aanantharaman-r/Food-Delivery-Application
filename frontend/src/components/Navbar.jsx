@@ -4,10 +4,11 @@ import {
   Search, 
   ShoppingBag, 
   User, 
-  Menu,
-  X,
-  LogOut,
-  Clock
+  Menu, 
+  X, 
+  LogOut, 
+  Clock,
+  UtensilsCrossed
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -51,10 +52,13 @@ export const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
-          {/* Logo - Tomato. */}
-          <Link to="/" className="flex items-center gap-1 group">
+          {/* Logo - Foodie. */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+              <UtensilsCrossed className="w-5 h-5 stroke-[2.5]" />
+            </div>
             <span className="text-3xl font-black tracking-tight text-[#ff4c24] font-sans">
-              Tomato<span className="text-[#ff4c24]">.</span>
+              Foodie<span className="text-[#ff4c24]">.</span>
             </span>
           </Link>
 

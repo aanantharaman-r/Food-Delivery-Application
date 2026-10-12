@@ -121,7 +121,7 @@ export const Home = () => {
           <div className="max-w-xl mx-auto space-y-2">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-800 leading-tight">
               For Better Experience Download <br />
-              <span className="text-[#ff4c24]">Tomato App</span>
+              <span className="text-[#ff4c24]">Foodie App</span>
             </h2>
           </div>
 

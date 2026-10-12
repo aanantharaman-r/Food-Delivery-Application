@@ -575,6 +575,57 @@ export const FOOD_ITEMS = [
     calories: '780 kcal',
     prepTime: '20 mins',
     ingredients: ['Pasta sheets', 'Beef Bolognese ragù', 'Béchamel sauce', 'Mozzarella', 'Parmesan']
+  },
+  {
+    id: 121,
+    restaurantId: 4,
+    restaurantName: 'Nawabi Royal Biryani',
+    name: 'Shahi Paneer Butter Masala',
+    category: 'pureveg',
+    price: 249,
+    rating: 4.9,
+    reviewsCount: 380,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?auto=format&fit=crop&w=800&q=80',
+    description: 'Cottage cheese cubes cooked in rich creamy tomato cashew gravy, infused with aromatic cardamom and Kasuri methi, served with butter naan.',
+    calories: '520 kcal',
+    prepTime: '15 mins',
+    ingredients: ['Fresh Paneer', 'Cashew cream', 'Butter', 'Tomato gravy', 'Kasuri methi']
+  },
+  {
+    id: 122,
+    restaurantId: 4,
+    restaurantName: 'Nawabi Royal Biryani',
+    name: 'Amritsari Dal Makhani Bowl',
+    category: 'pureveg',
+    price: 199,
+    rating: 4.8,
+    reviewsCount: 290,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?auto=format&fit=crop&w=800&q=80',
+    description: 'Slow-simmered whole black lentils & kidney beans slow-cooked overnight with churned white butter, cream, and Punjabi spices.',
+    calories: '440 kcal',
+    prepTime: '12 mins',
+    ingredients: ['Black Urad dal', 'Rajma', 'Desi butter', 'Fresh cream', 'Ginger garlic']
+  },
+  {
+    id: 123,
+    restaurantId: 4,
+    restaurantName: 'Nawabi Royal Biryani',
+    name: 'Royal Subz Dum Biryani',
+    category: 'pureveg',
+    price: 229,
+    rating: 4.9,
+    reviewsCount: 340,
+    isVeg: true,
+    isBestseller: true,
+    image: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?auto=format&fit=crop&w=800&q=80',
+    description: 'Fragrant aged basmati rice layered with garden vegetables, paneer cubes, saffron, caramelized onions, and royal Awadhi spices.',
+    calories: '490 kcal',
+    prepTime: '18 mins',
+    ingredients: ['Basmati rice', 'Farm vegetables', 'Paneer', 'Saffron', 'Mint raita']
   }
 ]
 
