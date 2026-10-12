@@ -112,7 +112,7 @@ export const FoodCard = ({ food }) => {
         {/* Price */}
         <div className="mt-3.5 pt-2 flex items-center justify-between">
           <span className="text-lg font-black text-[#ff4c24]">
-            ${typeof food.price === 'number' ? food.price.toFixed(0) : food.price}
+            ₹{typeof food.price === 'number' ? food.price.toFixed(0) : food.price}
           </span>
           <span className="text-[11px] font-medium text-slate-400 capitalize">
             {food.category}

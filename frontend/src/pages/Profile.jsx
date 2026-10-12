@@ -124,7 +124,7 @@ export const Profile = () => {
             </div>
 
             <div className="p-3.5 rounded-2xl bg-emerald-50 border border-emerald-100">
-              <span className="text-lg font-black text-emerald-700 block">₹28.50</span>
+              <span className="text-lg font-black text-emerald-700 block">₹280</span>
               <p className="text-[11px] font-bold text-emerald-800">Total Money Saved</p>
             </div>
           </div>

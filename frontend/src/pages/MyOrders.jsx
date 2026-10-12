@@ -157,11 +157,11 @@ export const MyOrders = () => {
                       )}
                       <div className="flex justify-between">
                         <span>Delivery Fee</span>
-                        <span>{selectedOrder.deliveryFee === 0 ? 'FREE' : `₹${selectedOrder.deliveryFee || 2.99}`}</span>
+                        <span>{selectedOrder.deliveryFee === 0 ? 'FREE' : `₹${selectedOrder.deliveryFee || 40}`}</span>
                       </div>
                       <div className="flex justify-between">
                         <span>Taxes & Handling</span>
-                        <span>₹{(selectedOrder.tax || 2.40).toFixed(2)}</span>
+                        <span>₹{(selectedOrder.tax || 28).toFixed(2)}</span>
                       </div>
                     </div>
 

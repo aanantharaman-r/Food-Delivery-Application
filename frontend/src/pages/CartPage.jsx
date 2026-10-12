@@ -38,9 +38,10 @@ export const CartPage = () => {
     }
   }
 
-  // Calculate delivery fee: free if cart is empty, else $2 (or standard)
-  const effectiveDeliveryFee = items.length === 0 ? 0 : 2
-  const effectiveTotal = items.length === 0 ? 0 : subtotal + effectiveDeliveryFee - (appliedCoupon ? 2 : 0)
+  // Calculate delivery fee: free if cart is empty or subtotal > 499, else ₹40
+  const effectiveDeliveryFee = items.length === 0 ? 0 : (subtotal > 499 ? 0 : 40)
+  const discountVal = appliedCoupon ? (appliedCoupon.discountPercent ? Math.min((subtotal * appliedCoupon.discountPercent) / 100, appliedCoupon.maxDiscount || 100) : 50) : 0
+  const effectiveTotal = items.length === 0 ? 0 : Math.max(0, subtotal + effectiveDeliveryFee - discountVal)
 
   if (items.length === 0) {
     return (
@@ -106,7 +107,7 @@ export const CartPage = () => {
 
                     {/* Price */}
                     <td className="py-4 font-medium">
-                      ${entry.food.price.toFixed(0)}
+                      ₹{entry.food.price.toFixed(0)}
                     </td>
 
                     {/* Quantity with +/- controls */}
@@ -134,7 +135,7 @@ export const CartPage = () => {
 
                     {/* Total */}
                     <td className="py-4 font-semibold text-slate-900">
-                      ${itemTotal.toFixed(0)}
+                      ₹{itemTotal.toFixed(0)}
                     </td>
 
                     {/* Remove 'x' button */}
@@ -166,24 +167,24 @@ export const CartPage = () => {
             <div className="space-y-3 text-sm text-slate-600">
               <div className="flex items-center justify-between py-2 border-b border-slate-200">
                 <span>Subtotal</span>
-                <span className="font-medium text-slate-800">${subtotal.toFixed(0)}</span>
+                <span className="font-medium text-slate-800">₹{subtotal.toFixed(0)}</span>
               </div>
 
               <div className="flex items-center justify-between py-2 border-b border-slate-200">
                 <span>Delivery Fee</span>
-                <span className="font-medium text-slate-800">${effectiveDeliveryFee.toFixed(0)}</span>
+                <span className="font-medium text-slate-800">{effectiveDeliveryFee === 0 ? 'FREE' : `₹${effectiveDeliveryFee.toFixed(0)}`}</span>
               </div>
 
               {appliedCoupon && (
                 <div className="flex items-center justify-between py-2 border-b border-slate-200 text-emerald-600">
                   <span>Promo Discount ({appliedCoupon.code})</span>
-                  <span className="font-medium">-$2</span>
+                  <span className="font-medium">-₹{discountVal.toFixed(0)}</span>
                 </div>
               )}
 
               <div className="flex items-center justify-between py-2 text-base font-bold text-slate-900">
                 <span>Total</span>
-                <span>${effectiveTotal.toFixed(0)}</span>
+                <span>₹{effectiveTotal.toFixed(0)}</span>
               </div>
             </div>
 

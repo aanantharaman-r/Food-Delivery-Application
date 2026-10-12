@@ -20,7 +20,7 @@ export const OrderSuccess = () => {
   const displayOrder = order || {
     id: 'ORD-98214',
     restaurant: 'The Burger Barn & Grill',
-    total: 32.37,
+    total: 627,
     status: 'Order Placed',
     stepIndex: 0,
     address: 'Apt 4B, Emerald Green Residency, 74 Elm Street',

@@ -5,9 +5,9 @@ const CartContext = createContext()
 
 export const useCart = () => useContext(CartContext)
 
-const DELIVERY_BASE_FEE = 2.99
-const TAX_RATE = 0.08 // 8% sales & service tax
-const PACKAGING_FEE = 1.25
+const DELIVERY_BASE_FEE = 40
+const TAX_RATE = 0.05 // 5% GST
+const PACKAGING_FEE = 20
 
 const INITIAL_ORDERS = [
   {
@@ -16,14 +16,14 @@ const INITIAL_ORDERS = [
     restaurant: 'The Burger Barn & Grill',
     restaurantImage: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80',
     items: [
-      { name: 'Truffle Smash Cheeseburger', quantity: 2, price: 13.99 },
-      { name: 'Loaded Truffle & Bacon Fries', quantity: 1, price: 6.99 }
+      { name: 'Truffle Smash Cheeseburger', quantity: 2, price: 249 },
+      { name: 'Loaded Truffle & Bacon Fries', quantity: 1, price: 149 }
     ],
-    itemTotal: 34.97,
-    discount: 5.00,
+    itemTotal: 647,
+    discount: 50,
     deliveryFee: 0,
-    tax: 2.40,
-    total: 32.37,
+    tax: 30,
+    total: 627,
     status: 'Out for Delivery',
     stepIndex: 3, // 0: Placed, 1: Confirmed, 2: Preparing, 3: Out for delivery, 4: Delivered
     deliveryPartner: {
@@ -41,14 +41,14 @@ const INITIAL_ORDERS = [
     restaurant: 'Artisan Woodfire Pizza Co.',
     restaurantImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80',
     items: [
-      { name: 'Diavola Pepperoni & Hot Honey', quantity: 1, price: 17.49 },
-      { name: 'Creamy Truffle Wild Mushroom Pasta', quantity: 1, price: 16.99 }
+      { name: 'Diavola Pepperoni & Hot Honey', quantity: 1, price: 349 },
+      { name: 'Creamy Truffle Wild Mushroom Pasta', quantity: 1, price: 279 }
     ],
-    itemTotal: 34.48,
-    discount: 8.00,
-    deliveryFee: 2.99,
-    tax: 2.36,
-    total: 31.83,
+    itemTotal: 628,
+    discount: 80,
+    deliveryFee: 40,
+    tax: 28,
+    total: 616,
     status: 'Delivered',
     stepIndex: 4,
     deliveryPartner: {
@@ -170,7 +170,7 @@ export const CartProvider = ({ children }) => {
     }
   }
 
-  const deliveryFee = subtotal === 0 ? 0 : (isFreeDelivery || subtotal > 40 ? 0 : DELIVERY_BASE_FEE)
+  const deliveryFee = subtotal === 0 ? 0 : (isFreeDelivery || subtotal > 499 ? 0 : DELIVERY_BASE_FEE)
   const packagingFee = subtotal === 0 ? 0 : PACKAGING_FEE
   const taxableAmount = Math.max(0, subtotal - discountAmount)
   const tax = subtotal === 0 ? 0 : (taxableAmount * TAX_RATE)
