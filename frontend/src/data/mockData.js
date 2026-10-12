@@ -45,7 +45,7 @@ export const CATEGORIES = [
     id: 'pasta', 
     name: 'Pasta', 
     icon: '🍝',
-    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?auto=format&fit=crop&w=300&q=80' 
+    image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=300&q=80' 
   },
   { 
     id: 'noodles', 
@@ -332,7 +332,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 160,
     isVeg: true,
     isBestseller: false,
-    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80',
     description: 'Fresh fettuccine pasta in rich black truffle cream sauce with sautéed cremini & shiitake mushrooms, grated Grana Padano.',
     calories: '690 kcal',
     prepTime: '15 mins',
@@ -519,7 +519,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 380,
     isVeg: true,
     isBestseller: true,
-    image: 'https://images.unsplash.com/photo-1621996346565-e3d5d6281729?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?auto=format&fit=crop&w=800&q=80',
     description: 'Penne rigate tossed in rich roasted garlic parmesan cream sauce with sauteed broccoli florets and fresh Italian parsley.',
     calories: '670 kcal',
     prepTime: '15 mins',
