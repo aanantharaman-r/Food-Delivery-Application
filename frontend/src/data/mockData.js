@@ -760,7 +760,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 310,
     isVeg: false,
     isBestseller: true,
-    image: 'https://images.unsplash.com/photo-1619096252214-efc6566cb281?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1553909489-cd47e0907980?auto=format&fit=crop&w=800&q=80',
     description: 'Slow-smoked tender pulled chicken tossed in Texas hickory BBQ glaze, topped with cheddar cheese and house jalapeño slaw in a toasted brioche sub.',
     calories: '580 kcal',
     prepTime: '12 mins',
