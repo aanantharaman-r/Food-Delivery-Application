@@ -15,7 +15,7 @@ export const CATEGORIES = [
     id: 'rolls', 
     name: 'Rolls', 
     icon: '🌯',
-    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=300&q=80' 
+    image: 'https://images.unsplash.com/photo-1548943487-a2e4e43b4853?auto=format&fit=crop&w=300&q=80' 
   },
   { 
     id: 'desserts', 
@@ -639,7 +639,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 260,
     isVeg: false,
     isBestseller: true,
-    image: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?auto=format&fit=crop&w=800&q=80',
     description: 'Char-grilled succulent chicken tikka chunks wrapped in flaky paratha with sliced pickled onions and mint-coriander chutney.',
     calories: '460 kcal',
     prepTime: '12 mins',
@@ -656,7 +656,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 195,
     isVeg: true,
     isBestseller: false,
-    image: 'https://images.unsplash.com/photo-1509722747041-616f39b57569?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?auto=format&fit=crop&w=800&q=80',
     description: 'Tandoori-spiced cottage cheese cubes, crunchy bell peppers, and tangy sauces wrapped in a butter-toasted tortilla wrap.',
     calories: '410 kcal',
     prepTime: '10 mins',
@@ -673,7 +673,7 @@ export const FOOD_ITEMS = [
     reviewsCount: 215,
     isVeg: true,
     isBestseller: true,
-    image: 'https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?auto=format&fit=crop&w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1540420773420-3366772f4999?auto=format&fit=crop&w=800&q=80',
     description: 'Translucent rice paper rolls packed with ripe avocado slices, crisp herbs, cucumber, and vermicelli noodles with sweet peanut dipping sauce.',
     calories: '290 kcal',
     prepTime: '10 mins',
