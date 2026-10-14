@@ -26,6 +26,12 @@ export const MobileNav = () => {
             <Link
               key={item.label}
               to={item.path}
+              onClick={(e) => {
+                if (item.path === '/' && location.pathname === '/') {
+                  e.preventDefault()
+                  window.scrollTo({ top: 0, behavior: 'smooth' })
+                }
+              }}
               className={`flex flex-col items-center justify-center flex-1 py-1 transition-all relative ${
                 isActive ? 'text-orange-600 scale-105' : 'text-slate-400 hover:text-slate-600'
               }`}

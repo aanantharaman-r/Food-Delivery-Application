@@ -27,7 +27,7 @@ export const Home = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
         
         {/* 1. Hero Banner: Tomato style orange banner with food imagery, heading, description and View Menu button */}
-        <section className="relative rounded-3xl overflow-hidden shadow-sm bg-gradient-to-r from-[#ff4c24] via-[#ff5b36] to-[#ff6b47] min-h-[360px] sm:min-h-[460px] md:min-h-[500px] flex items-center">
+        <section id="hero-banner" className="relative rounded-3xl overflow-hidden shadow-sm bg-gradient-to-r from-[#ff4c24] via-[#ff5b36] to-[#ff6b47] min-h-[360px] sm:min-h-[460px] md:min-h-[500px] flex items-center">
           {/* Subtle background food illustration or photography overlay */}
           <div 
             className="absolute inset-0 bg-cover bg-right md:bg-center opacity-30 mix-blend-overlay pointer-events-none"

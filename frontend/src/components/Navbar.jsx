@@ -35,15 +35,35 @@ export const Navbar = () => {
 
   const scrollToSection = (id) => {
     setMobileMenuOpen(false)
+    if (id === 'home' || id === 'hero-banner') {
+      if (location.pathname !== '/') {
+        navigate('/')
+        setTimeout(() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' })
+        }, 100)
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+      return
+    }
+
     if (location.pathname !== '/') {
       navigate('/')
       setTimeout(() => {
         const el = document.getElementById(id)
         if (el) el.scrollIntoView({ behavior: 'smooth' })
-      }, 100)
+      }, 150)
     } else {
       const el = document.getElementById(id)
       if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
+
+  const handleHomeClick = (e) => {
+    setMobileMenuOpen(false)
+    if (location.pathname === '/') {
+      e.preventDefault()
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     }
   }
 
@@ -53,7 +73,7 @@ export const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           
           {/* Logo - Foodie. */}
-          <Link to="/" className="flex items-center gap-2 group">
+          <Link to="/" onClick={handleHomeClick} className="flex items-center gap-2 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
               <UtensilsCrossed className="w-5 h-5 stroke-[2.5]" />
             </div>
@@ -64,14 +84,14 @@ export const Navbar = () => {
 
           {/* Desktop Nav Links: Home, Menu, Mobile App, Contact Us */}
           <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
-            <Link 
-              to="/" 
-              className={`transition-colors hover:text-[#ff4c24] ${
+            <button 
+              onClick={() => scrollToSection('home')} 
+              className={`transition-colors hover:text-[#ff4c24] cursor-pointer ${
                 location.pathname === '/' ? 'text-slate-900 font-semibold border-b-2 border-slate-900 pb-1' : ''
               }`}
             >
               home
-            </Link>
+            </button>
             <button 
               onClick={() => scrollToSection('explore-menu')} 
               className="transition-colors hover:text-[#ff4c24] cursor-pointer"
@@ -219,13 +239,12 @@ export const Navbar = () => {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-slate-100 space-y-3 animate-in fade-in">
             <div className="flex flex-col gap-2">
-              <Link
-                to="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
+              <button
+                onClick={() => scrollToSection('home')}
+                className="text-left px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"
               >
                 Home
-              </Link>
+              </button>
               <button
                 onClick={() => scrollToSection('explore-menu')}
                 className="text-left px-3 py-2 text-sm font-medium text-slate-700 hover:text-[#ff4c24]"

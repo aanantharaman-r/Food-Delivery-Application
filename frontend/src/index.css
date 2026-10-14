@@ -2,6 +2,10 @@
 @config "../tailwind.config.js";
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   :root {
     --primary: #ff4c24;
     --primary-hover: #e03a14;
