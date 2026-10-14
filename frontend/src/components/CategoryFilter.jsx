@@ -3,7 +3,7 @@ import React from 'react'
 export const CategoryFilter = ({ categories, activeCategory, onCategoryChange }) => {
   return (
     <div className="w-full">
-      <div className="flex items-center gap-7 overflow-x-auto pb-4 pt-2 scrollbar-none no-scrollbar">
+      <div className="flex items-center gap-7 overflow-x-auto px-2 pt-3 pb-4 scrollbar-none no-scrollbar">
         {categories.map((cat) => {
           const isActive = activeCategory === cat.id
 
@@ -11,12 +11,12 @@ export const CategoryFilter = ({ categories, activeCategory, onCategoryChange })
             <div
               key={cat.id}
               onClick={() => onCategoryChange(cat.id)}
-              className="flex flex-col items-center gap-2.5 cursor-pointer shrink-0 group select-none"
+              className="flex flex-col items-center gap-2.5 cursor-pointer shrink-0 group select-none p-1"
             >
               <div
                 className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden transition-all duration-300 p-0.5 ${
                   isActive
-                    ? 'ring-4 ring-[#ff4c24] ring-offset-2 scale-105'
+                    ? 'ring-4 ring-[#ff4c24] ring-offset-2 scale-105 shadow-md shadow-orange-500/20'
                     : 'hover:scale-105 border-2 border-transparent'
                 }`}
               >
