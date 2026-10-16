@@ -5,6 +5,7 @@ require("dotenv").config();
 
 const connectDB = require("./config/db");
 const foodRoutes = require("./routes/foodRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 
 const app = express();
 
@@ -16,9 +17,11 @@ app.get("/", (req, res) => {
   res.send("Food Delivery Backend is Running!");
 });
 
-// Food API routes
+// API routes
 app.use("/api/foods", foodRoutes);
+app.use("/api/categories", categoryRoutes);
 
+// Start server
 const startServer = async () => {
   try {
     await connectDB();
