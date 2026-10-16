@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Sparkles, Utensils, Flame, Bike, Heart } from 'lucide-react'
+import { Sparkles, Utensils, UtensilsCrossed, Flame, Bike, Heart } from 'lucide-react'
 
 const FOOD_TIDBITS = [
   "Firing up the tandoor & preheating the ovens...",
@@ -144,16 +144,24 @@ export const CrazyLoadingScreen = ({
           </div>
         </div>
 
-        {/* Brand Title with High-Tech Glow */}
-        <div className="space-y-1.5 mb-5">
+        {/* Brand Title with Official Foodie Logo & Glow */}
+        <div className="space-y-2.5 mb-5 flex flex-col items-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs font-medium text-orange-300 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-amber-400 animate-spin" style={{ animationDuration: '3s' }} />
             <span>Master Chefs At Work</span>
           </div>
-          <h2 className="text-3xl font-black tracking-tight text-white flex items-center justify-center gap-1.5">
-            <span className="text-white">Foodie</span>
-            <span className="bg-gradient-to-r from-orange-400 to-[#ff4c24] bg-clip-text text-transparent">.</span>
-          </h2>
+
+          <div className="flex items-center justify-center gap-3">
+            {/* Foodie App Logo Badge */}
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#ff4c24] via-orange-500 to-amber-400 flex items-center justify-center text-white shadow-lg shadow-orange-500/40 ring-2 ring-white/20 animate-pulse">
+              <UtensilsCrossed className="w-6 h-6 stroke-[2.5]" />
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-white flex items-center">
+              <span>Foodie</span>
+              <span className="text-[#ff4c24] animate-pulse">.</span>
+            </h2>
+          </div>
         </div>
 
         {/* Dynamic cycling whimsical food quote */}
