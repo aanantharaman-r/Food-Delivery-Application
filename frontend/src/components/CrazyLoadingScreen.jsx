@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { Sparkles, Check } from 'lucide-react'
+import { UtensilsCrossed, ShieldCheck, Sparkles, MapPin, ArrowRight } from 'lucide-react'
 
-// Layers for the burger stacking animation
-const BURGER_LAYERS = [
-  { id: 'bottom-bun', name: 'Toasted Brioche Bun', emoji: '🍞', color: 'bg-amber-600', height: 'h-4', width: 'w-28', rounded: 'rounded-b-2xl' },
-  { id: 'lettuce', name: 'Crispy Romaine Lettuce', emoji: '🥬', color: 'bg-emerald-500', height: 'h-2.5', width: 'w-30', rounded: 'rounded-md' },
-  { id: 'patty', name: 'Smash Grilled Patty', emoji: '🥩', color: 'bg-amber-950', height: 'h-4', width: 'w-28', rounded: 'rounded-lg' },
-  { id: 'cheese', name: 'Melted Cheddar Slice', emoji: '🧀', color: 'bg-yellow-400', height: 'h-2', width: 'w-29', rounded: 'rounded-sm' },
-  { id: 'tomato', name: 'Ripe Vine Tomatoes', emoji: '🍅', color: 'bg-rose-500', height: 'h-2.5', width: 'w-27', rounded: 'rounded-md' },
-  { id: 'top-bun', name: 'Sesame Top Crown', emoji: '🍔', color: 'bg-amber-500', height: 'h-7', width: 'w-28', rounded: 'rounded-t-3xl' }
+const GOURMET_STEPS = [
+  { label: "Curating top-rated kitchens nearby", icon: MapPin },
+  { label: "Handpicking fresh ingredients & chefs", icon: Sparkles },
+  { label: "Verifying lightning-speed delivery routes", icon: ShieldCheck }
 ]
 
 export const CrazyLoadingScreen = ({ 
@@ -16,32 +12,20 @@ export const CrazyLoadingScreen = ({
   duration = 2400, 
   forceShow = false 
 }) => {
-  const [activeLayers, setActiveLayers] = useState([])
-  const [currentStepText, setCurrentStepText] = useState('Heating up the grill...')
   const [progress, setProgress] = useState(0)
+  const [currentStepIndex, setCurrentStepIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isFadingOut, setIsFadingOut] = useState(false)
-  const [isAssembled, setIsAssembled] = useState(false)
 
-  // Stepwise drop of each layer
+  // Step transitions
   useEffect(() => {
-    BURGER_LAYERS.forEach((layer, index) => {
-      setTimeout(() => {
-        setActiveLayers((prev) => [...prev, layer.id])
-        setCurrentStepText(`Stacking: ${layer.name}`)
-      }, 250 + index * 260)
-    })
-
-    // Finished assembling trigger
-    const finishTimeout = setTimeout(() => {
-      setIsAssembled(true)
-      setCurrentStepText('Fresh & ready to serve!')
-    }, 250 + BURGER_LAYERS.length * 260)
-
-    return () => clearTimeout(finishTimeout)
+    const stepInterval = setInterval(() => {
+      setCurrentStepIndex((prev) => (prev + 1) % GOURMET_STEPS.length)
+    }, 750)
+    return () => clearInterval(stepInterval)
   }, [])
 
-  // Manage progress bar & exit timing
+  // Progress ticker & exit animation
   useEffect(() => {
     const startTime = Date.now()
     const interval = setInterval(() => {
@@ -55,7 +39,7 @@ export const CrazyLoadingScreen = ({
         setTimeout(() => {
           setIsVisible(false)
           if (onComplete) onComplete()
-        }, 500)
+        }, 500) // smooth exit fade
       }
     }, 25)
 
@@ -64,91 +48,106 @@ export const CrazyLoadingScreen = ({
 
   if (!isVisible && !forceShow) return null
 
+  // Circumference for circular progress indicator
+  const radius = 54
+  const circumference = 2 * Math.PI * radius
+  const strokeDashoffset = circumference - (progress / 100) * circumference
+  const ActiveStepIcon = GOURMET_STEPS[currentStepIndex].icon
+
   return (
     <div 
-      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-between py-12 px-6 transition-all duration-500 ease-in-out ${
-        isFadingOut ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'
+      className={`fixed inset-0 z-[99999] flex flex-col items-center justify-between py-12 px-6 bg-slate-900/40 backdrop-blur-2xl transition-all duration-500 ease-in-out ${
+        isFadingOut ? 'opacity-0 scale-[1.02] pointer-events-none' : 'opacity-100 scale-100'
       }`}
       style={{
-        background: 'radial-gradient(circle at 50% 40%, #ffffff 0%, #fef3ef 55%, #fed7aa 120%)'
+        background: 'linear-gradient(180deg, #ffffff 0%, #fafafa 60%, #f4f4f5 100%)'
       }}
     >
-      {/* Top Brand Pill */}
-      <div className="pt-2 flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/90 border border-orange-200/80 shadow-xs backdrop-blur-md">
-        <Sparkles className="w-3.5 h-3.5 text-[#ff4c24] animate-spin" style={{ animationDuration: '4s' }} />
-        <span className="text-xs font-bold text-slate-800 tracking-wide font-sans">
-          Foodie Kitchen Express
+      {/* Top subtle badge */}
+      <div className="pt-2 animate-fade-in flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-slate-100/90 border border-slate-200/80 shadow-xs">
+        <span className="w-2 h-2 rounded-full bg-[#ff4c24] animate-ping" />
+        <span className="text-[12px] font-medium tracking-wide text-slate-600 uppercase font-sans">
+          Gourmet Delivery Experience
         </span>
       </div>
 
-      {/* Center Stage: Mid-Air Falling Burger Stack */}
-      <div className="flex flex-col items-center justify-center relative w-full max-w-xs">
+      {/* Main Luxury Center Card */}
+      <div className="relative flex flex-col items-center max-w-sm w-full text-center">
         
-        {/* Glow & plate shadow beneath burger */}
-        <div className={`w-36 h-6 bg-slate-400/20 rounded-full blur-md mb-2 transition-all duration-300 ${isAssembled ? 'scale-110 opacity-70' : 'scale-90 opacity-40'}`} />
+        {/* Elegant Circular Progress with Logo Centerpiece */}
+        <div className="relative w-40 h-40 flex items-center justify-center mb-8">
+          
+          {/* Subtle Glow Ring */}
+          <div className="absolute inset-2 rounded-full bg-orange-500/10 blur-xl" />
 
-        {/* Burger Assembly Container */}
-        <div className={`relative flex flex-col-reverse items-center justify-end h-56 w-44 transition-transform duration-300 ${isAssembled ? 'animate-bounce' : ''}`}>
-          {BURGER_LAYERS.map((layer) => {
-            const isDropped = activeLayers.includes(layer.id)
+          {/* SVG Circular Progress Track & Fill */}
+          <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 140 140">
+            {/* Background Track */}
+            <circle
+              cx="70"
+              cy="70"
+              r={radius}
+              className="text-slate-100 stroke-current"
+              strokeWidth="4"
+              fill="transparent"
+            />
+            {/* Animated Progress Gradient Ring */}
+            <circle
+              cx="70"
+              cy="70"
+              r={radius}
+              stroke="url(#foodieGradient)"
+              strokeWidth="4.5"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              strokeLinecap="round"
+              fill="transparent"
+              className="transition-all duration-150 ease-out"
+            />
+            <defs>
+              <linearGradient id="foodieGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stopColor="#f97316" />
+                <stop offset="50%" stopColor="#ff4c24" />
+                <stop offset="100%" stopColor="#e11d48" />
+              </linearGradient>
+            </defs>
+          </svg>
 
-            return (
-              <div
-                key={layer.id}
-                className={`transition-all duration-400 ease-out flex items-center justify-center shadow-xs my-0.5 ${layer.height} ${layer.width} ${layer.rounded} ${layer.color} ${
-                  isDropped 
-                    ? 'translate-y-0 opacity-100 scale-100' 
-                    : '-translate-y-24 opacity-0 scale-125'
-                }`}
-                style={{
-                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.12), 0 2px 4px -2px rgba(0, 0, 0, 0.08)'
-                }}
-              >
-                {/* Special details for top bun: Sesame dots */}
-                {layer.id === 'top-bun' && isDropped && (
-                  <div className="flex gap-2 text-[9px] opacity-80 select-none pb-1">
-                    <span>•</span><span>•</span><span>•</span><span>•</span><span>•</span>
-                  </div>
-                )}
-                {/* Cheese melt corner drip */}
-                {layer.id === 'cheese' && isDropped && (
-                  <div className="absolute -bottom-1.5 left-5 w-3 h-3 bg-yellow-400 rotate-45 rounded-xs" />
-                )}
-              </div>
-            )
-          })}
+          {/* Centerpiece: Refined Circular Foodie Emblem */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center">
+            <div className="w-18 h-18 rounded-full bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/25 ring-4 ring-white transition-transform duration-300">
+              <UtensilsCrossed className="w-8 h-8 stroke-[2.2] animate-pulse" />
+            </div>
+          </div>
         </div>
 
         {/* Brand Headline */}
-        <div className="mt-8 text-center space-y-1">
-          <h2 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight font-sans">
+        <div className="space-y-2 mb-2">
+          <h1 className="text-4xl font-black tracking-tight text-slate-900 font-sans flex items-center justify-center">
             Foodie<span className="text-[#ff4c24]">.</span>
-          </h2>
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest h-4">
-            {currentStepText}
+          </h1>
+          <p className="text-xs uppercase tracking-widest text-slate-400 font-semibold">
+            Delivering Culinary Excellence
           </p>
         </div>
 
-        {/* Sleek Progress Bar */}
-        <div className="w-56 mt-6">
-          <div className="w-full bg-orange-100/80 h-2 rounded-full overflow-hidden p-0.5 border border-orange-200/50">
-            <div 
-              className="h-full bg-gradient-to-r from-amber-400 via-orange-500 to-[#ff4c24] rounded-full transition-all duration-150 ease-out shadow-xs"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <div className="flex justify-between items-center text-[11px] font-bold text-slate-400 mt-1.5">
-            <span>Freshly Stacked</span>
-            <span className="font-mono text-slate-700">{progress}%</span>
-          </div>
+        {/* Minimal dynamic caption with smooth pulse */}
+        <div className="h-8 flex items-center justify-center">
+          <p 
+            key={currentStepIndex}
+            className="text-xs font-medium text-slate-500 animate-fade-in flex items-center gap-2"
+          >
+            <ActiveStepIcon className="w-3.5 h-3.5 text-[#ff4c24]" />
+            <span>{GOURMET_STEPS[currentStepIndex].label}</span>
+          </p>
         </div>
-
       </div>
 
-      {/* Footer text */}
-      <div className="pb-2 text-center text-xs font-medium text-slate-400">
-        Crafting your cravings with love
+      {/* Footer Minimalist Tag */}
+      <div className="pb-2 text-center text-slate-400 text-xs font-normal">
+        <p>Premium flavors at your doorstep</p>
       </div>
+
     </div>
   )
 }
