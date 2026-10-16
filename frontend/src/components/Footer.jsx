@@ -11,7 +11,7 @@ export const Footer = () => {
           {/* Col 1: Foodie Logo & Intro & Social Icons */}
           <div className="md:col-span-5 space-y-5">
             <Link to="/" className="inline-flex items-center gap-2 group">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform ring-2 ring-orange-500/10">
                 <UtensilsCrossed className="w-4 h-4 stroke-[2.5]" />
               </div>
               <span className="text-3xl font-black text-[#ff4c24] tracking-tight">

@@ -36,7 +36,7 @@ export const Login = () => {
         
         {/* Brand header */}
         <div className="text-center mb-8">
-          <div className="w-12 h-12 mx-auto rounded-2xl bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white mb-3 shadow-md shadow-orange-500/20">
+          <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white mb-3 shadow-md shadow-orange-500/20 ring-4 ring-orange-100">
             <UtensilsCrossed className="w-6 h-6 stroke-[2.5]" />
           </div>
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">

@@ -75,7 +75,7 @@ export const Navbar = ({ onTriggerLoading }) => {
           
           {/* Logo - Foodie. */}
           <Link to="/" onClick={handleHomeClick} className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 group-hover:scale-105 transition-transform ring-2 ring-orange-500/10">
               <UtensilsCrossed className="w-5 h-5 stroke-[2.5]" />
             </div>
             <span className="text-3xl font-black tracking-tight text-[#ff4c24] font-sans">
