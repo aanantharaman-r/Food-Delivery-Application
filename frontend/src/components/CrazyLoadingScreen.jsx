@@ -116,7 +116,7 @@ export const CrazyLoadingScreen = ({
           {/* Centerpiece: Refined Circular Foodie Emblem */}
           <div className="absolute inset-0 flex flex-col items-center justify-center">
             <div className="w-18 h-18 rounded-full bg-gradient-to-tr from-[#ff4c24] to-amber-500 flex items-center justify-center text-white shadow-xl shadow-orange-500/25 ring-4 ring-white transition-transform duration-300">
-              <UtensilsCrossed className="w-8 h-8 stroke-[2.2] animate-pulse" />
+              <UtensilsCrossed className="w-8 h-8 stroke-[2.2] animate-cutlery-bob" />
             </div>
           </div>
         </div>
