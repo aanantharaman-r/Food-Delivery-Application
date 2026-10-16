@@ -22,17 +22,36 @@ import { SearchResults } from './pages/SearchResults'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Profile } from './pages/Profile'
+import { CrazyLoadingScreen } from './components/CrazyLoadingScreen'
 
 function App() {
+  const [showLoading, setShowLoading] = React.useState(true)
+
+  // Listen to custom window event to replay the crazy animation anytime
+  React.useEffect(() => {
+    const handleReplay = () => setShowLoading(true)
+    window.addEventListener('replay-crazy-loader', handleReplay)
+    return () => window.removeEventListener('replay-crazy-loader', handleReplay)
+  }, [])
+
   return (
     <Router>
+      {/* Crazy Food Delivery Intro / Preloader Animation */}
+      {showLoading && (
+        <CrazyLoadingScreen 
+          duration={2500} 
+          onComplete={() => setShowLoading(false)} 
+        />
+      )}
+
       <AuthProvider>
         <CartProvider>
           <ToastProvider>
             <div className="min-h-screen flex flex-col bg-white text-slate-800 antialiased font-sans">
               
               {/* Sticky Modern Top Navigation */}
-              <Navbar />
+              <Navbar onTriggerLoading={() => setShowLoading(true)} />
+
 
               {/* Main Routing Container */}
               <div className="flex-1">

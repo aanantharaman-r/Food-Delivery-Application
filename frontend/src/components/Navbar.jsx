@@ -8,12 +8,13 @@ import {
   X, 
   LogOut, 
   Clock,
-  UtensilsCrossed
+  UtensilsCrossed,
+  Sparkles
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
 
-export const Navbar = () => {
+export const Navbar = ({ onTriggerLoading }) => {
   const navigate = useNavigate()
   const location = useLocation()
   const { cartCount } = useCart()
@@ -145,6 +146,18 @@ export const Navbar = () => {
                 </button>
               )}
             </div>
+
+            {/* Quick Demo Replay Trigger for the Crazy Loading Animation */}
+            {onTriggerLoading && (
+              <button
+                onClick={onTriggerLoading}
+                title="Replay Crazy Loading Animation"
+                className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-full border border-orange-200 transition-all cursor-pointer shadow-xs active:scale-95"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-orange-500 animate-spin" style={{ animationDuration: '4s' }} />
+                <span>Crazy Loader</span>
+              </button>
+            )}
 
             {/* Cart Icon with notification dot */}
             <Link
