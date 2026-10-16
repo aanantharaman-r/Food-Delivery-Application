@@ -37,9 +37,11 @@ export const MobileNav = () => {
               }`}
             >
               <div className="relative">
-                <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+                <div className={`p-1.5 rounded-full transition-colors ${isActive ? 'bg-orange-50 text-[#ff4c24]' : ''}`}>
+                  <Icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : 'stroke-2'}`} />
+                </div>
                 {item.badge > 0 && (
-                  <span className="absolute -top-1.5 -right-2.5 bg-orange-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
+                  <span className="absolute -top-1 -right-1 bg-[#ff4c24] text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-xs">
                     {item.badge}
                   </span>
                 )}
