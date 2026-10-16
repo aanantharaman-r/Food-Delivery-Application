@@ -147,15 +147,15 @@ export const Navbar = ({ onTriggerLoading }) => {
               )}
             </div>
 
-            {/* Quick Demo Replay Trigger for the Crazy Loading Animation */}
+            {/* Quick Demo Replay Trigger for the Loading Animation */}
             {onTriggerLoading && (
               <button
                 onClick={onTriggerLoading}
-                title="Replay Crazy Loading Animation"
+                title="Preview Loading Screen"
                 className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold text-orange-600 bg-orange-50 hover:bg-orange-100 rounded-full border border-orange-200 transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <Sparkles className="w-3.5 h-3.5 text-orange-500 animate-spin" style={{ animationDuration: '4s' }} />
-                <span>Crazy Loader</span>
+                <span>Preview Loader</span>
               </button>
             )}
 
