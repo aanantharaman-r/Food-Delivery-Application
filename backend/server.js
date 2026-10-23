@@ -1,4 +1,3 @@
-
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
@@ -8,6 +7,7 @@ const foodRoutes = require("./routes/foodRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const authRoutes = require("./routes/authRoutes");
 const authMiddleware = require("./middleware/authMiddleware");
+const adminMiddleware = require("./middleware/adminMiddleware");
 
 const app = express();
 
@@ -27,6 +27,19 @@ app.get("/api/auth/profile", authMiddleware, (req, res) => {
     user: req.user,
   });
 });
+
+// Admin test API
+app.get(
+  "/api/admin/test",
+  authMiddleware,
+  adminMiddleware,
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: "Admin access granted",
+    });
+  }
+);
 
 // API routes
 app.use("/api/foods", foodRoutes);
