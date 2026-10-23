@@ -7,6 +7,7 @@ const connectDB = require("./config/db");
 const foodRoutes = require("./routes/foodRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const authRoutes = require("./routes/authRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
 
 const app = express();
 
@@ -23,6 +24,12 @@ app.get("/", (req, res) => {
 app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
+app.get("/api/auth/profile", authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    user: req.user,
+  });
+});
 
 // Start server
 const startServer = async () => {
