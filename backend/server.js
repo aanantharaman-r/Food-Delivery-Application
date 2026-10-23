@@ -6,6 +6,7 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const foodRoutes = require("./routes/foodRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -20,6 +21,7 @@ app.get("/", (req, res) => {
 // API routes
 app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
+app.use("/api/auth", authRoutes);
 
 // Start server
 const startServer = async () => {
