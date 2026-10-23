@@ -20,14 +20,24 @@ app.get("/", (req, res) => {
   res.send("Food Delivery Backend is Running!");
 });
 
+// Protected profile API
+app.get("/api/auth/profile", authMiddleware, (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user,
+  });
+});
+
 // API routes
 app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
-app.get("/api/auth/profile", authMiddleware, (req, res) => {
-  res.json({
-    success: true,
-    user: req.user,
+
+// Handle unknown API routes
+app.use("/api", (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "API route not found",
   });
 });
 
