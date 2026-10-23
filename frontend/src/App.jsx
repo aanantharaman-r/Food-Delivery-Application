@@ -1,3 +1,4 @@
+
 import React from 'react'
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
@@ -24,23 +25,28 @@ import { Register } from './pages/Register'
 import { Profile } from './pages/Profile'
 import { CrazyLoadingScreen } from './components/CrazyLoadingScreen'
 
+// Admin Dashboard
+import AdminDashboard from './admin/AdminDashboard'
+
 function App() {
   const [showLoading, setShowLoading] = React.useState(true)
 
-  // Listen to custom window event to replay the crazy animation anytime
   React.useEffect(() => {
     const handleReplay = () => setShowLoading(true)
+
     window.addEventListener('replay-crazy-loader', handleReplay)
-    return () => window.removeEventListener('replay-crazy-loader', handleReplay)
+
+    return () => {
+      window.removeEventListener('replay-crazy-loader', handleReplay)
+    }
   }, [])
 
   return (
     <Router>
-      {/* Crazy Food Delivery Intro / Preloader Animation */}
       {showLoading && (
-        <CrazyLoadingScreen 
-          duration={2500} 
-          onComplete={() => setShowLoading(false)} 
+        <CrazyLoadingScreen
+          duration={2500}
+          onComplete={() => setShowLoading(false)}
         />
       )}
 
@@ -48,34 +54,48 @@ function App() {
         <CartProvider>
           <ToastProvider>
             <div className="min-h-screen flex flex-col bg-white text-slate-800 antialiased font-sans">
-              
-              {/* Sticky Modern Top Navigation */}
-              <Navbar onTriggerLoading={() => setShowLoading(true)} />
 
-
-              {/* Main Routing Container */}
               <div className="flex-1">
                 <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/restaurants" element={<Restaurants />} />
-                  <Route path="/restaurant/:id" element={<RestaurantDetails />} />
-                  <Route path="/food/:id" element={<FoodDetails />} />
-                  <Route path="/cart" element={<CartPage />} />
-                  <Route path="/checkout" element={<Checkout />} />
-                  <Route path="/order-success" element={<OrderSuccess />} />
-                  <Route path="/my-orders" element={<MyOrders />} />
-                  <Route path="/search" element={<SearchResults />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/register" element={<Register />} />
-                  <Route path="/profile" element={<Profile />} />
+                  {/* Customer Website */}
+                  <Route
+                    path="/*"
+                    element={
+                      <>
+                        <Navbar
+                          onTriggerLoading={() => setShowLoading(true)}
+                        />
+
+                        <div className="flex-1">
+                          <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/restaurants" element={<Restaurants />} />
+                            <Route path="/restaurant/:id" element={<RestaurantDetails />} />
+                            <Route path="/food/:id" element={<FoodDetails />} />
+                            <Route path="/cart" element={<CartPage />} />
+                            <Route path="/checkout" element={<Checkout />} />
+                            <Route path="/order-success" element={<OrderSuccess />} />
+                            <Route path="/my-orders" element={<MyOrders />} />
+                            <Route path="/search" element={<SearchResults />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/profile" element={<Profile />} />
+                          </Routes>
+                        </div>
+
+                        <Footer />
+                        <MobileNav />
+                      </>
+                    }
+                  />
+
+                  {/* Admin Dashboard */}
+                  <Route
+                    path="/admin"
+                    element={<AdminDashboard />}
+                  />
                 </Routes>
               </div>
-
-              {/* Tomato style Footer */}
-              <Footer />
-
-              {/* Mobile App-Style Bottom Tab Navigation */}
-              <MobileNav />
 
             </div>
           </ToastProvider>
