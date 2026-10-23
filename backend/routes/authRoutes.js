@@ -6,29 +6,27 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// User Registration
+// Register API
 router.post("/register", async (req, res) => {
   try {
-    const { name, email, password, phone, address } = req.body;
+    const { name, email, password } = req.body;
 
-    // Validate required fields
     if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Name, email and password are required",
+        message: "Please enter name, email and password",
       });
     }
 
-    if (password.length < 8) {
+    if (typeof password !== "string" || password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters",
+        message: "Password must contain at least 8 characters",
       });
     }
 
     const normalizedEmail = email.trim().toLowerCase();
 
-    // Check existing user
     const existingUser = await User.findOne({
       email: normalizedEmail,
     });
@@ -40,35 +38,21 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create customer account (never accept role from request)
     const user = await User.create({
       name: name.trim(),
       email: normalizedEmail,
       password: hashedPassword,
-      phone,
-      address,
-      role: "customer",
     });
 
-    // Generate JWT token
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: "Registration successful",
-      token,
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: user.role,
       },
     });
   } catch (error) {
@@ -79,11 +63,74 @@ router.post("/register", async (req, res) => {
       });
     }
 
-    console.error("Registration error:", error.message);
+    console.error("Register error:", error.message);
 
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Registration failed",
+    });
+  }
+});
+
+// Login API
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: "Email and password are required",
+      });
+    }
+
+    const user = await User.findOne({
+      email: email.trim().toLowerCase(),
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      throw new Error("JWT_SECRET is missing in .env");
+    }
+
+    const token = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (error) {
+    console.error("Login error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Login failed",
     });
   }
 });
