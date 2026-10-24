@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { User, Mail, Lock, Phone, ArrowRight, UtensilsCrossed, Gift } from 'lucide-react'
@@ -13,139 +14,144 @@ export const Register = () => {
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!name || !email || !password) return
 
-    register({
-      name,
-      email,
-      phone: phone || '+1 (555) 234-5678',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'
-    })
+    if (!name.trim() || !email.trim() || !password) {
+      showToast({
+        title: 'Missing Details',
+        description: 'Please fill in all required fields.',
+        variant: 'error'
+      })
+      return
+    }
 
-    showToast({
-      title: 'Registration Complete!',
-      description: 'Welcome to Foodie. You received 100 bonus loyalty coins!',
-      variant: 'success'
-    })
+    if (password.length < 8) {
+      showToast({
+        title: 'Weak Password',
+        description: 'Password must contain at least 8 characters.',
+        variant: 'error'
+      })
+      return
+    }
 
-    navigate('/profile')
+    try {
+      setLoading(true)
+
+      await register({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+        phone
+      })
+
+      showToast({
+        title: 'Registration Successful!',
+        description: 'Your account has been created. Please log in.',
+        variant: 'success'
+      })
+
+      navigate('/login')
+    } catch (error) {
+      showToast({
+        title: 'Registration Failed',
+        description: error.message || 'Please try again.',
+        variant: 'error'
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="min-h-[85vh] bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-100 shadow-xl">
-        
-        {/* Brand header */}
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white mb-3 shadow-md shadow-orange-500/20 ring-4 ring-orange-100">
-            <UtensilsCrossed className="w-6 h-6 stroke-[2.5]" />
-          </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">
-            Create an Account
-          </h2>
-          <p className="text-xs text-slate-400 mt-1">Get special discounts on your first order</p>
-        </div>
-
-        {/* Welcome Bonus Callout */}
-        <div className="mb-6 p-3.5 bg-orange-50 border border-orange-200/80 rounded-2xl flex items-center gap-3">
-          <div className="p-2 rounded-xl bg-orange-600 text-white shrink-0">
-            <Gift className="w-4 h-4" />
-          </div>
-          <p className="text-xs text-orange-800">
-            <strong>Welcome Deal:</strong> 100 Foodie coins credited upon signing up!
+          <UtensilsCrossed className="mx-auto mb-3" size={42} />
+          <h1 className="text-3xl font-bold">Create Account</h1>
+          <p className="mt-2 text-gray-500">
+            Join us and order your favourite food.
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Full Name
-            </label>
-            <div className="relative">
-              <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <label className="block mb-1">Full Name *</label>
+            <div className="flex items-center gap-2 border rounded-xl px-3">
+              <User size={18} />
               <input
-                type="text"
-                required
+                className="w-full p-3 outline-none bg-transparent"
+                placeholder="Enter your name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Sarah Connor"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+                required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Email Address
-            </label>
-            <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <label className="block mb-1">Email *</label>
+            <div className="flex items-center gap-2 border rounded-xl px-3">
+              <Mail size={18} />
               <input
                 type="email"
-                required
+                className="w-full p-3 outline-none bg-transparent"
+                placeholder="Enter your email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="sarah@example.com"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+                required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Phone Number
-            </label>
-            <div className="relative">
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <label className="block mb-1">Phone</label>
+            <div className="flex items-center gap-2 border rounded-xl px-3">
+              <Phone size={18} />
               <input
                 type="tel"
+                className="w-full p-3 outline-none bg-transparent"
+                placeholder="Enter phone number"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                placeholder="+1 (555) 234-5678"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Password
-            </label>
-            <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <label className="block mb-1">Password *</label>
+            <div className="flex items-center gap-2 border rounded-xl px-3">
+              <Lock size={18} />
               <input
                 type="password"
-                required
+                className="w-full p-3 outline-none bg-transparent"
+                placeholder="Minimum 8 characters"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
+                minLength={8}
+                required
               />
             </div>
           </div>
 
           <button
             type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-orange-500 text-white p-3 font-semibold hover:bg-orange-600 disabled:opacity-60"
           >
-            Create My Account
-            <ArrowRight className="w-4 h-4" />
+            {loading ? 'Creating Account...' : 'Create Account'}
+            {!loading && <ArrowRight size={18} />}
           </button>
         </form>
 
-        <div className="mt-6 pt-6 border-t border-slate-100 text-center">
-          <p className="text-xs text-slate-500">
-            Already registered?{' '}
-            <Link to="/login" className="font-bold text-orange-600 hover:underline">
-              Sign in here
-            </Link>
-          </p>
-        </div>
-
+        <p className="text-center mt-6">
+          Already have an account?{' '}
+          <Link to="/login" className="text-orange-500 font-semibold">
+            Login
+          </Link>
+        </p>
       </div>
     </div>
   )

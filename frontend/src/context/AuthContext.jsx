@@ -1,71 +1,118 @@
-import React, { createContext, useContext, useState, useEffect } from 'react'
+
+import React, { createContext, useContext, useState } from 'react'
 
 const AuthContext = createContext()
 
 export const useAuth = () => useContext(AuthContext)
 
 const DEFAULT_USER = {
-  name: 'Sarah Connor',
-  email: 'sarah.connor@example.com',
-  phone: '+1 (555) 234-5678',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
-  memberSince: 'March 2024',
-  loyaltyPoints: 340
+  avatar: '',
+  memberSince: '',
+  loyaltyPoints: 0,
 }
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
-    const saved = localStorage.getItem('foodie_user')
-    return saved ? JSON.parse(saved) : DEFAULT_USER
-  })
-  
-  const [isLoggedIn, setIsLoggedIn] = useState(() => {
-    const saved = localStorage.getItem('foodie_logged_in')
-    return saved !== null ? JSON.parse(saved) : true
+    try {
+      return JSON.parse(localStorage.getItem('foodie_user')) || null
+    } catch {
+      return null
+    }
   })
 
-  useEffect(() => {
-    localStorage.setItem('foodie_user', JSON.stringify(user))
-  }, [user])
+  const [token, setToken] = useState(
+    () => localStorage.getItem('foodie_token') || ''
+  )
 
-  useEffect(() => {
-    localStorage.setItem('foodie_logged_in', JSON.stringify(isLoggedIn))
-  }, [isLoggedIn])
+  const [isLoggedIn, setIsLoggedIn] = useState(
+    () => Boolean(localStorage.getItem('foodie_token'))
+  )
 
-  const login = (userData) => {
-    const updated = { ...DEFAULT_USER, ...userData }
-    setUser(updated)
+  const saveSession = (userData, authToken) => {
+    const updatedUser = { ...DEFAULT_USER, ...userData }
+
+    localStorage.setItem('foodie_user', JSON.stringify(updatedUser))
+    localStorage.setItem('foodie_token', authToken)
+
+    setUser(updatedUser)
+    setToken(authToken)
     setIsLoggedIn(true)
   }
 
-  const register = (userData) => {
-    const updated = {
-      ...DEFAULT_USER,
-      ...userData,
-      memberSince: 'Just now',
-      loyaltyPoints: 100 // welcome bonus
+  const login = async ({ email, password }) => {
+    const response = await fetch(
+      'http://localhost:5000/api/auth/login',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Login failed')
     }
-    setUser(updated)
-    setIsLoggedIn(true)
+
+    saveSession(data.user, data.token)
+    return data.user
+  }
+
+  const register = async (userData) => {
+    const response = await fetch(
+      'http://localhost:5000/api/auth/register',
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+        }),
+      }
+    )
+
+    const data = await response.json()
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Registration failed')
+    }
+
+    return data
   }
 
   const logout = () => {
+    localStorage.removeItem('foodie_user')
+    localStorage.removeItem('foodie_token')
+
+    setUser(null)
+    setToken('')
     setIsLoggedIn(false)
   }
 
-  const updateUser = (data) => {
-    setUser(prev => ({ ...prev, ...data }))
+  const updateUser = (updates) => {
+    setUser((previous) => {
+      if (!previous) return null
+
+      const updated = { ...previous, ...updates }
+      localStorage.setItem('foodie_user', JSON.stringify(updated))
+      return updated
+    })
   }
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      isLoggedIn,
-      login,
-      register,
-      logout,
-      updateUser
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        token,
+        isLoggedIn,
+        login,
+        register,
+        logout,
+        updateUser,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Lock, Mail, ArrowRight, Sparkles, UtensilsCrossed } from 'lucide-react'
+import { Lock, Mail, ArrowRight, UtensilsCrossed } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../components/Toast'
 
@@ -9,48 +10,56 @@ export const Login = () => {
   const { login } = useAuth()
   const { showToast } = useToast()
 
-  const [email, setEmail] = useState('sarah.connor@example.com')
-  const [password, setPassword] = useState('password123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!email || !password) return
 
-    login({
-      name: email.split('@')[0].replace('.', ' '),
-      email: email
-    })
+    try {
+      setLoading(true)
 
-    showToast({
-      title: 'Welcome Back!',
-      description: 'You have logged in successfully.',
-      variant: 'success'
-    })
+      const loggedInUser = await login({ email, password })
 
-    navigate('/profile')
+      showToast({
+        title: 'Welcome Back!',
+        description: 'Login successful.',
+        variant: 'success',
+      })
+
+      navigate(loggedInUser.role === 'admin' ? '/admin' : '/profile')
+    } catch (error) {
+      showToast({
+        title: 'Login Failed',
+        description: error.message || 'Please check your email and password.',
+        variant: 'error',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
     <div className="min-h-[85vh] bg-slate-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full bg-white rounded-3xl p-8 sm:p-10 border border-slate-100 shadow-xl">
-        
-        {/* Brand header */}
         <div className="text-center mb-8">
           <div className="w-14 h-14 mx-auto rounded-full bg-gradient-to-tr from-orange-600 to-amber-500 flex items-center justify-center text-white mb-3 shadow-md shadow-orange-500/20 ring-4 ring-orange-100">
             <UtensilsCrossed className="w-6 h-6 stroke-[2.5]" />
           </div>
+
           <h2 className="text-2xl font-black text-slate-900 tracking-tight">
             Welcome to <span className="text-[#ff4c24]">Foodie.</span>
           </h2>
           <p className="text-xs text-slate-400 mt-1">Sign in to your account</p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
               Email Address
             </label>
+
             <div className="relative">
               <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -65,14 +74,10 @@ export const Login = () => {
           </div>
 
           <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
-                Password
-              </label>
-              <a href="#" className="text-[11px] font-bold text-orange-600 hover:underline">
-                Forgot?
-              </a>
-            </div>
+            <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+              Password
+            </label>
+
             <div className="relative">
               <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -80,23 +85,19 @@ export const Login = () => {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
+                placeholder="Enter your password"
                 className="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-2xl text-xs text-slate-800 focus:bg-white focus:border-orange-500 focus:outline-none"
               />
             </div>
           </div>
 
-          {/* Preset demo credentials notice */}
-          <div className="p-3 bg-orange-50/80 rounded-2xl border border-orange-100 text-[11px] text-orange-800">
-            <strong>Demo Account:</strong> Credentials prefilled for one-click testing.
-          </div>
-
           <button
             type="submit"
-            className="w-full py-3.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2"
+            disabled={loading}
+            className="w-full py-3.5 bg-gradient-to-r from-orange-600 to-amber-500 hover:from-orange-500 hover:to-amber-400 text-white font-bold text-sm rounded-2xl shadow-lg shadow-orange-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
           >
-            Sign In to Foodie
-            <ArrowRight className="w-4 h-4" />
+            {loading ? 'Signing In...' : 'Sign In to Foodie'}
+            {!loading && <ArrowRight className="w-4 h-4" />}
           </button>
         </form>
 
@@ -108,7 +109,6 @@ export const Login = () => {
             </Link>
           </p>
         </div>
-
       </div>
     </div>
   )
