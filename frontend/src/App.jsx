@@ -30,8 +30,9 @@ import { Register } from './pages/Register'
 import { Profile } from './pages/Profile'
 import { CrazyLoadingScreen } from './components/CrazyLoadingScreen'
 
-// Admin
+// Admin Pages
 import AdminDashboard from './admin/AdminDashboard'
+import AdminOrders from './admin/AdminOrders'
 import AdminRoute from './admin/AdminRoute'
 
 function CustomerLayout({ setShowLoading }) {
@@ -89,15 +90,20 @@ function App() {
           <ToastProvider>
             <div className="min-h-screen flex flex-col bg-white text-slate-800 antialiased font-sans">
               <Routes>
-                {/* Protected Admin Dashboard */}
+                {/* Protected Admin Pages */}
                 <Route element={<AdminRoute />}>
                   <Route
                     path="/admin"
                     element={<AdminDashboard />}
                   />
+
+                  <Route
+                    path="/admin/orders"
+                    element={<AdminOrders />}
+                  />
                 </Route>
 
-                {/* Customer Website */}
+                {/* Existing Customer Website */}
                 <Route
                   path="/*"
                   element={
