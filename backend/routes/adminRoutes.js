@@ -1,5 +1,6 @@
 
 const express = require("express");
+const mongoose = require("mongoose");
 const router = express.Router();
 
 const User = require("../models/User");
@@ -8,6 +9,16 @@ const Order = require("../models/Order");
 
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
+
+// Allowed order statuses
+const allowedStatuses = [
+  "PLACED",
+  "CONFIRMED",
+  "PREPARING",
+  "OUT_FOR_DELIVERY",
+  "DELIVERED",
+  "CANCELLED",
+];
 
 // GET: Admin dashboard statistics
 router.get("/stats", authMiddleware, adminMiddleware, async (req, res) => {
@@ -74,5 +85,62 @@ router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
     });
   }
 });
+
+// PATCH: Update order status
+router.patch(
+  "/orders/:id/status",
+  authMiddleware,
+  adminMiddleware,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { orderStatus } = req.body;
+
+      // Validate MongoDB order ID
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid order ID",
+        });
+      }
+
+      // Validate order status
+      if (!allowedStatuses.includes(orderStatus)) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid order status",
+          allowedStatuses,
+        });
+      }
+
+      // Find and update order
+      const order = await Order.findByIdAndUpdate(
+        id,
+        { $set: { orderStatus } },
+        { new: true, runValidators: true }
+      );
+
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Order status updated successfully",
+        order,
+      });
+    } catch (error) {
+      console.error("Order status update error:", error.message);
+
+      res.status(500).json({
+        success: false,
+        message: "Failed to update order status",
+      });
+    }
+  }
+);
 
 module.exports = router;
