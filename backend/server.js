@@ -55,7 +55,17 @@ app.use("/api/admin", adminRoutes);
 app.use("/api", (req, res) => {
   res.status(404).json({
     success: false,
-    message: "API route not found",
+    message: `API route not found: ${req.method} ${req.originalUrl}`,
+  });
+});
+
+// Handle other errors
+app.use((error, req, res, next) => {
+  console.error("Server error:", error.message);
+
+  res.status(500).json({
+    success: false,
+    message: "Internal server error",
   });
 });
 
@@ -68,6 +78,7 @@ const startServer = async () => {
 
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log("Admin routes mounted at /api/admin");
     });
   } catch (error) {
     console.error("Server startup failed:", error.message);
