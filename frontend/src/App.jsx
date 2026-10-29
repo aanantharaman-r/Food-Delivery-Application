@@ -1,4 +1,3 @@
-
 import React from 'react'
 import {
   BrowserRouter as Router,
@@ -30,9 +29,12 @@ import { Register } from './pages/Register'
 import { Profile } from './pages/Profile'
 import { CrazyLoadingScreen } from './components/CrazyLoadingScreen'
 
-// Admin Pages
+// Admin Pages & Layout
+import AdminLayout from './admin/AdminLayout'
 import AdminDashboard from './admin/AdminDashboard'
+import AdminFoods from './admin/AdminFoods'
 import AdminOrders from './admin/AdminOrders'
+import AdminCustomers from './admin/AdminCustomers'
 import AdminRoute from './admin/AdminRoute'
 
 function CustomerLayout({ setShowLoading }) {
@@ -90,17 +92,14 @@ function App() {
           <ToastProvider>
             <div className="min-h-screen flex flex-col bg-white text-slate-800 antialiased font-sans">
               <Routes>
-                {/* Protected Admin Pages */}
+                {/* Protected Admin Pages with Sidebar Layout */}
                 <Route element={<AdminRoute />}>
-                  <Route
-                    path="/admin"
-                    element={<AdminDashboard />}
-                  />
-
-                  <Route
-                    path="/admin/orders"
-                    element={<AdminOrders />}
-                  />
+                  <Route path="/admin" element={<AdminLayout />}>
+                    <Route index element={<AdminDashboard />} />
+                    <Route path="foods" element={<AdminFoods />} />
+                    <Route path="orders" element={<AdminOrders />} />
+                    <Route path="customers" element={<AdminCustomers />} />
+                  </Route>
                 </Route>
 
                 {/* Existing Customer Website */}

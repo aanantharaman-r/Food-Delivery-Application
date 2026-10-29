@@ -9,73 +9,32 @@ const DELIVERY_BASE_FEE = 40
 const TAX_RATE = 0.05 // 5% GST
 const PACKAGING_FEE = 20
 
-const INITIAL_ORDERS = [
-  {
-    id: 'ORD-98214',
-    date: 'Today, 12:45 PM',
-    restaurant: 'The Burger Barn & Grill',
-    restaurantImage: 'https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=400&q=80',
-    items: [
-      { name: 'Truffle Smash Cheeseburger', quantity: 2, price: 249 },
-      { name: 'Loaded Truffle & Bacon Fries', quantity: 1, price: 149 }
-    ],
-    itemTotal: 647,
-    discount: 50,
-    deliveryFee: 0,
-    tax: 30,
-    total: 627,
-    status: 'Out for Delivery',
-    stepIndex: 3, // 0: Placed, 1: Confirmed, 2: Preparing, 3: Out for delivery, 4: Delivered
-    deliveryPartner: {
-      name: 'Michael Davis',
-      rating: 4.9,
-      phone: '+1 (555) 789-0123',
-      vehicle: 'Honda Activa • NY 4829'
-    },
-    address: 'Apt 4B, Emerald Green Residency, 74 Elm Street',
-    eta: '10-15 mins'
-  },
-  {
-    id: 'ORD-84192',
-    date: 'Yesterday, 8:15 PM',
-    restaurant: 'Artisan Woodfire Pizza Co.',
-    restaurantImage: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80',
-    items: [
-      { name: 'Diavola Pepperoni & Hot Honey', quantity: 1, price: 349 },
-      { name: 'Creamy Truffle Wild Mushroom Pasta', quantity: 1, price: 279 }
-    ],
-    itemTotal: 628,
-    discount: 80,
-    deliveryFee: 40,
-    tax: 28,
-    total: 616,
-    status: 'Delivered',
-    stepIndex: 4,
-    deliveryPartner: {
-      name: 'Carlos Ruiz',
-      rating: 4.8,
-      phone: '+1 (555) 321-9876',
-      vehicle: 'E-Bike Delivery'
-    },
-    address: 'Apt 4B, Emerald Green Residency, 74 Elm Street',
-    eta: 'Delivered'
-  }
-]
-
 export const CartProvider = ({ children }) => {
   const [items, setItems] = useState(() => {
-    const saved = localStorage.getItem('foodie_cart')
-    return saved ? JSON.parse(saved) : []
+    try {
+      const saved = localStorage.getItem('foodie_cart')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
   })
 
   const [appliedCoupon, setAppliedCoupon] = useState(() => {
-    const saved = localStorage.getItem('foodie_coupon')
-    return saved ? JSON.parse(saved) : null
+    try {
+      const saved = localStorage.getItem('foodie_coupon')
+      return saved ? JSON.parse(saved) : null
+    } catch {
+      return null
+    }
   })
 
   const [addresses, setAddresses] = useState(() => {
-    const saved = localStorage.getItem('foodie_addresses')
-    return saved ? JSON.parse(saved) : USER_ADDRESSES
+    try {
+      const saved = localStorage.getItem('foodie_addresses')
+      return saved ? JSON.parse(saved) : USER_ADDRESSES
+    } catch {
+      return USER_ADDRESSES
+    }
   })
 
   const [selectedAddressId, setSelectedAddressId] = useState(() => {
@@ -84,10 +43,18 @@ export const CartProvider = ({ children }) => {
   })
 
   const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('foodie_orders')
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS
+    try {
+      const saved = localStorage.getItem('foodie_orders')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
   })
 
+  // Helper to get consistent item id
+  const getItemId = (food) => food._id || food.id
+
+  // Automatically cleanse cart: remove or notify for items that are invalid or null
   useEffect(() => {
     localStorage.setItem('foodie_cart', JSON.stringify(items))
   }, [items])
@@ -105,11 +72,14 @@ export const CartProvider = ({ children }) => {
   }, [orders])
 
   const addItem = (food, quantity = 1) => {
+    if (!food || food.isAvailable === false) return
+    const id = getItemId(food)
+
     setItems(prev => {
-      const existing = prev.find(item => item.food.id === food.id)
+      const existing = prev.find(item => getItemId(item.food) === id)
       if (existing) {
         return prev.map(item =>
-          item.food.id === food.id
+          getItemId(item.food) === id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
@@ -119,24 +89,35 @@ export const CartProvider = ({ children }) => {
   }
 
   const removeItem = (foodId) => {
-    setItems(prev => prev.filter(item => item.food.id !== foodId))
+    setItems(prev => prev.filter(item => getItemId(item.food) !== foodId))
   }
 
   const decreaseQuantity = (foodId) => {
-    setItems(prev => prev.map(item => {
-      if (item.food.id === foodId) {
-        return item.quantity > 1 ? { ...item, quantity: item.quantity - 1 } : null
-      }
-      return item
-    }).filter(Boolean))
+    setItems(prev =>
+      prev
+        .map(item => {
+          if (getItemId(item.food) === foodId) {
+            return item.quantity > 1
+              ? { ...item, quantity: item.quantity - 1 }
+              : null
+          }
+          return item
+        })
+        .filter(Boolean)
+    )
   }
 
   const increaseQuantity = (foodId) => {
-    setItems(prev => prev.map(item =>
-      item.food.id === foodId
-        ? { ...item, quantity: item.quantity + 1 }
-        : item
-    ))
+    setItems(prev =>
+      prev.map(item => {
+        if (getItemId(item.food) === foodId) {
+          // If marked unavailable, don't increase
+          if (item.food.isAvailable === false) return item
+          return { ...item, quantity: item.quantity + 1 }
+        }
+        return item
+      })
+    )
   }
 
   const clearCart = () => {
@@ -144,9 +125,14 @@ export const CartProvider = ({ children }) => {
     setAppliedCoupon(null)
   }
 
+  // Remove any unavailable items from cart
+  const removeUnavailableItems = () => {
+    setItems(prev => prev.filter(i => i.food && i.food.isAvailable !== false))
+  }
+
   // Financial Calculations
   const subtotal = items.reduce(
-    (sum, item) => sum + (item.food.price * item.quantity),
+    (sum, item) => sum + (Number(item.food.price) || 0) * item.quantity,
     0
   )
 
@@ -173,7 +159,7 @@ export const CartProvider = ({ children }) => {
   const deliveryFee = subtotal === 0 ? 0 : (isFreeDelivery || subtotal > 499 ? 0 : DELIVERY_BASE_FEE)
   const packagingFee = subtotal === 0 ? 0 : PACKAGING_FEE
   const taxableAmount = Math.max(0, subtotal - discountAmount)
-  const tax = subtotal === 0 ? 0 : (taxableAmount * TAX_RATE)
+  const tax = subtotal === 0 ? 0 : Math.round(taxableAmount * TAX_RATE)
   const grandTotal = Math.max(0, taxableAmount + deliveryFee + packagingFee + tax)
 
   const applyCoupon = (coupon) => {
@@ -197,15 +183,23 @@ export const CartProvider = ({ children }) => {
 
   const selectedAddress = addresses.find(a => a.id === selectedAddressId) || addresses[0]
 
-  const placeOrder = ({ paymentMethod, deliveryNotes }) => {
-    const newOrderId = 'ORD-' + Math.floor(10000 + Math.random() * 90000)
+  const placeOrder = ({ paymentMethod, deliveryNotes, savedDbOrder }) => {
+    const newOrderId = savedDbOrder?._id
+      ? `ORD-${savedDbOrder._id.slice(-6).toUpperCase()}`
+      : 'ORD-' + Math.floor(10000 + Math.random() * 90000)
+
     const restaurantName = items[0]?.food?.restaurantName || 'Foodie Partner Restaurant'
+
     const newOrder = {
+      _id: savedDbOrder?._id,
       id: newOrderId,
       date: 'Just now',
       restaurant: restaurantName,
-      restaurantImage: items[0]?.food?.image || 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80',
+      restaurantImage:
+        items[0]?.food?.image ||
+        'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=400&q=80',
       items: items.map(i => ({
+        food: i.food._id || i.food.id,
         name: i.food.name,
         quantity: i.quantity,
         price: i.food.price
@@ -216,17 +210,20 @@ export const CartProvider = ({ children }) => {
       tax,
       packagingFee,
       total: grandTotal,
-      status: 'Order Placed',
+      status: savedDbOrder?.orderStatus || 'Order Placed',
+      orderStatus: savedDbOrder?.orderStatus || 'PLACED',
       stepIndex: 0,
-      paymentMethod: paymentMethod || 'Credit Card (••• 4242)',
+      paymentMethod: paymentMethod || 'Cash on Delivery',
       deliveryNotes: deliveryNotes || '',
       deliveryPartner: {
         name: 'David Reynolds',
         rating: 4.95,
-        phone: '+1 (555) 432-1098',
-        vehicle: 'Yamaha Scooter • NY 7721'
+        phone: '+91 98765 43210',
+        vehicle: 'Yamaha Scooter • TN 09 AB 4321'
       },
-      address: selectedAddress?.street + ', ' + selectedAddress?.city,
+      address: selectedAddress
+        ? `${selectedAddress.street}, ${selectedAddress.city}`
+        : 'Default Delivery Address',
       eta: '25-35 mins'
     }
 
@@ -236,34 +233,38 @@ export const CartProvider = ({ children }) => {
   }
 
   return (
-    <CartContext.Provider value={{
-      items,
-      addItem,
-      removeItem,
-      decreaseQuantity,
-      increaseQuantity,
-      clearCart,
-      cartCount,
-      subtotal,
-      total: grandTotal,
-      deliveryFee,
-      packagingFee,
-      tax,
-      discountAmount,
-      appliedCoupon,
-      applyCoupon,
-      removeCoupon,
-      addresses,
-      addAddress,
-      selectedAddressId,
-      setSelectedAddressId,
-      selectedAddress,
-      orders,
-      placeOrder,
-      setOrders
-    }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addItem,
+        removeItem,
+        decreaseQuantity,
+        increaseQuantity,
+        clearCart,
+        removeUnavailableItems,
+        cartCount,
+        subtotal,
+        total: grandTotal,
+        deliveryFee,
+        packagingFee,
+        tax,
+        discountAmount,
+        appliedCoupon,
+        applyCoupon,
+        removeCoupon,
+        addresses,
+        addAddress,
+        selectedAddressId,
+        setSelectedAddressId,
+        selectedAddress,
+        orders,
+        placeOrder,
+        setOrders
+      }}
+    >
       {children}
     </CartContext.Provider>
   )
 }
+
 export default CartContext

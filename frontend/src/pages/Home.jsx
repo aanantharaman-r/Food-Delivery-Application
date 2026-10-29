@@ -1,20 +1,76 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CATEGORIES, FOOD_ITEMS } from '../data/mockData'
 import { FoodCard } from '../components/FoodCard'
 import { CategoryFilter } from '../components/CategoryFilter'
+import { RefreshCw } from 'lucide-react'
+
+const API_BASE = 'http://localhost:5000/api'
 
 export const Home = () => {
   const navigate = useNavigate()
   const [activeCategory, setActiveCategory] = useState('all')
 
+  const [foods, setFoods] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // Fetch live foods & categories from MongoDB
+  const fetchMenuData = async () => {
+    try {
+      setLoading(true)
+      const [foodsRes, catsRes] = await Promise.all([
+        fetch(`${API_BASE}/foods?includeUnavailable=true`),
+        fetch(`${API_BASE}/categories`)
+      ])
+
+      const foodsData = await foodsRes.json()
+      const catsData = await catsRes.json()
+
+      if (foodsData.success) {
+        setFoods(foodsData.foods || [])
+      }
+      if (catsData.success) {
+        const dbCats = catsData.categories || []
+        const mappedCats = [
+          {
+            id: 'all',
+            name: 'All Dishes',
+            image:
+              'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+          },
+          ...dbCats.map((c) => ({
+            id: c._id,
+            name: c.name,
+            image:
+              c.image ||
+              'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+          }))
+        ]
+        setCategories(mappedCats)
+      }
+    } catch (err) {
+      console.error('Failed to load menu data:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchMenuData()
+  }, [])
+
   // Filter foods by selected category
-  const filteredFoods = activeCategory === 'all'
-    ? FOOD_ITEMS
-    : FOOD_ITEMS.filter(f => f.category === activeCategory)
+  const filteredFoods =
+    activeCategory === 'all'
+      ? foods
+      : foods.filter((f) => {
+          const catId = f.category?._id || f.category
+          const catName = f.category?.name?.toLowerCase() || ''
+          return catId === activeCategory || catName === activeCategory.toLowerCase()
+        })
 
   const handleCategorySelect = (catId) => {
-    setActiveCategory(prev => prev === catId ? 'all' : catId)
+    setActiveCategory((prev) => (prev === catId ? 'all' : catId))
   }
 
   const scrollToMenu = () => {
@@ -25,21 +81,21 @@ export const Home = () => {
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
-        
-        {/* 1. Hero Banner: Tomato style orange banner with food imagery, heading, description and View Menu button */}
-        <section id="hero-banner" className="relative rounded-3xl overflow-hidden shadow-sm bg-gradient-to-r from-[#ff4c24] via-[#ff5b36] to-[#ff6b47] min-h-[360px] sm:min-h-[460px] md:min-h-[500px] flex items-center">
-          {/* Subtle background food illustration or photography overlay */}
-          <div 
+        {/* 1. Hero Banner */}
+        <section
+          id="hero-banner"
+          className="relative rounded-3xl overflow-hidden shadow-sm bg-gradient-to-r from-[#ff4c24] via-[#ff5b36] to-[#ff6b47] min-h-[360px] sm:min-h-[460px] md:min-h-[500px] flex items-center"
+        >
+          <div
             className="absolute inset-0 bg-cover bg-right md:bg-center opacity-30 mix-blend-overlay pointer-events-none"
             style={{
               backgroundImage: `url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1600&q=80')`
             }}
           />
 
-          {/* Right side floating dish visual for desktop */}
           <div className="hidden lg:block absolute right-8 -bottom-10 w-[420px] h-[420px] pointer-events-none">
-            <img 
-              src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80" 
+            <img
+              src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80"
               alt="Delightful food dish"
               className="w-full h-full object-cover rounded-full shadow-2xl ring-8 ring-white/20 animate-spin-slow"
               style={{ animationDuration: '60s' }}
@@ -51,7 +107,7 @@ export const Home = () => {
               Order your <br />
               favourite food here
             </h1>
-            
+
             <p className="text-xs sm:text-sm md:text-base text-white/90 leading-relaxed font-normal max-w-xl">
               Choose from a diverse menu featuring a delectable array of dishes crafted with the finest ingredients and culinary expertise. Our mission is to satisfy your cravings and elevate your dining experience, one delicious meal at a time.
             </p>
@@ -67,7 +123,6 @@ export const Home = () => {
           </div>
         </section>
 
-
         {/* 2. Explore our menu Section */}
         <section id="explore-menu" className="space-y-6 pt-4">
           <div className="max-w-3xl space-y-3">
@@ -79,25 +134,31 @@ export const Home = () => {
             </p>
           </div>
 
-          {/* Circular Category items */}
-          <CategoryFilter
-            categories={CATEGORIES}
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategorySelect}
-          />
+          {/* Categories */}
+          {categories.length > 0 && (
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategorySelect}
+            />
+          )}
         </section>
-
 
         {/* Horizontal Divider */}
         <hr className="border-t border-slate-200" />
 
-
-        {/* 3. Top dishes near you Section (4-column grid like reference) */}
+        {/* 3. Top dishes near you Section */}
         <section className="space-y-8">
           <div className="flex items-center justify-between">
-            <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
-              Top dishes near you
-            </h2>
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-slate-800 tracking-tight">
+                Top dishes near you
+              </h2>
+              <p className="text-xs text-slate-400 mt-1">
+                Synced in real-time with our live menu
+              </p>
+            </div>
+
             {activeCategory !== 'all' && (
               <button
                 onClick={() => setActiveCategory('all')}
@@ -108,13 +169,24 @@ export const Home = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
-            {filteredFoods.map((food) => (
-              <FoodCard key={food.id} food={food} />
-            ))}
-          </div>
+          {loading ? (
+            <div className="p-16 text-center text-slate-400 space-y-3">
+              <RefreshCw size={28} className="animate-spin mx-auto text-[#ff4c24]" />
+              <p className="text-sm font-semibold">Loading dishes...</p>
+            </div>
+          ) : filteredFoods.length === 0 ? (
+            <div className="p-12 text-center text-slate-400">
+              <p className="text-base font-semibold text-slate-700">No dishes available in this category.</p>
+              <p className="text-xs text-slate-400 mt-1">Check back later or choose another category.</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">
+              {filteredFoods.map((food) => (
+                <FoodCard key={food._id || food.id} food={food} />
+              ))}
+            </div>
+          )}
         </section>
-
 
         {/* 4. Download App Banner Section */}
         <section id="download-app" className="py-12 text-center space-y-8">
@@ -126,7 +198,6 @@ export const Home = () => {
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
-            {/* Google Play Store Badge */}
             <div className="cursor-pointer hover:scale-105 transition-transform bg-slate-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-3 shadow-md border border-slate-800">
               <svg className="w-6 h-6 fill-current text-emerald-400" viewBox="0 0 24 24">
                 <path d="M3.609 1.814L13.793 12 3.61 22.186c-.37-.428-.61-.994-.61-1.63V3.444c0-.636.24-1.202.61-1.63zm11.248 11.25l2.484 2.483-11.455 6.467 8.971-8.95zm0-2.128L5.887 1.986l11.454 6.467-2.484 2.483zm1.488 1.064l3.86 2.18c.954.54.954 1.42 0 1.96l-3.86 2.18-2.128-2.128 2.128-2.192z"/>
@@ -137,7 +208,6 @@ export const Home = () => {
               </div>
             </div>
 
-            {/* Apple App Store Badge */}
             <div className="cursor-pointer hover:scale-105 transition-transform bg-slate-900 text-white px-5 py-2.5 rounded-xl flex items-center gap-3 shadow-md border border-slate-800">
               <svg className="w-6 h-6 fill-current text-white" viewBox="0 0 24 24">
                 <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.37c.62-.75 1.04-1.8 0.92-2.85-.9.04-2 0.6-2.65 1.35-.58.67-1.08 1.74-0.95 2.77.99.08 2.05-0.52 2.68-1.27z"/>
@@ -149,7 +219,6 @@ export const Home = () => {
             </div>
           </div>
         </section>
-
       </div>
     </div>
   )

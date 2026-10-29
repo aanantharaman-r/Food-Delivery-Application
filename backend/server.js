@@ -9,6 +9,7 @@ const foodRoutes = require("./routes/foodRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const authRoutes = require("./routes/authRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const orderRoutes = require("./routes/orderRoutes");
 
 const authMiddleware = require("./middleware/authMiddleware");
 const adminMiddleware = require("./middleware/adminMiddleware");
@@ -50,6 +51,7 @@ app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/orders", orderRoutes);
 
 // Handle unknown API routes
 app.use("/api", (req, res) => {

@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Minus, Star } from 'lucide-react'
+import { Plus, Minus, Star, Ban } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useToast } from './Toast'
 
@@ -8,12 +8,23 @@ export const FoodCard = ({ food }) => {
   const { items, addItem, increaseQuantity, decreaseQuantity } = useCart()
   const { showToast } = useToast()
 
-  const cartEntry = items.find(i => i.food.id === food.id)
+  const foodId = food._id || food.id
+  const cartEntry = items.find(i => (i.food._id || i.food.id) === foodId)
   const quantity = cartEntry ? cartEntry.quantity : 0
+
+  const isAvailable = food.isAvailable !== false
 
   const handleAdd = (e) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!isAvailable) {
+      showToast({
+        title: 'Item Unavailable',
+        description: `${food.name} is currently out of stock.`,
+        variant: 'destructive'
+      })
+      return
+    }
     addItem(food)
     showToast({
       title: 'Added to cart',
@@ -25,35 +36,55 @@ export const FoodCard = ({ food }) => {
   const handleIncrease = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    increaseQuantity(food.id)
+    if (!isAvailable) return
+    increaseQuantity(foodId)
   }
 
   const handleDecrease = (e) => {
     e.preventDefault()
     e.stopPropagation()
-    decreaseQuantity(food.id)
+    decreaseQuantity(foodId)
   }
 
+  const categoryName = typeof food.category === 'object' ? food.category?.name : food.category
+
   return (
-    <div className="w-full bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100/80 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl group">
+    <div className={`w-full bg-white rounded-2xl shadow-[0_2px_15px_-3px_rgba(0,0,0,0.07),0_10px_20px_-2px_rgba(0,0,0,0.04)] border border-slate-100/80 overflow-hidden flex flex-col transition-all duration-300 hover:shadow-xl group ${
+      !isAvailable ? 'opacity-75' : ''
+    }`}>
       {/* Food Image Container */}
       <div className="relative w-full aspect-[4/3] bg-slate-50 overflow-hidden">
-        <Link to={`/food/${food.id}`} className="block w-full h-full">
+        <Link to={`/food/${foodId}`} className="block w-full h-full">
           <img
             src={food.image}
             alt={food.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ${
+              !isAvailable ? 'grayscale-[50%]' : ''
+            }`}
             loading="lazy"
             onError={(e) => {
               e.currentTarget.onerror = null
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
+              e.currentTarget.src =
+                'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
             }}
           />
         </Link>
 
+        {/* Unavailable Badge */}
+        {!isAvailable && (
+          <div className="absolute top-3 left-3 z-10 flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900/80 backdrop-blur-xs text-white text-[10px] font-bold">
+            <Ban size={12} className="text-rose-400" />
+            <span>Out of Stock</span>
+          </div>
+        )}
+
         {/* Counter / Add Button positioned at bottom-right corner of image */}
         <div className="absolute bottom-3 right-3 z-10">
-          {quantity > 0 ? (
+          {!isAvailable ? (
+            <span className="px-3 py-1 bg-white/90 text-slate-500 text-[11px] font-bold rounded-full shadow-sm border border-slate-200">
+              Unavailable
+            </span>
+          ) : quantity > 0 ? (
             <div className="flex items-center gap-2 bg-white rounded-full p-1 shadow-md border border-slate-100">
               <button
                 onClick={handleDecrease}
@@ -91,7 +122,7 @@ export const FoodCard = ({ food }) => {
         <div>
           {/* Title & 5-Star Rating row */}
           <div className="flex items-start justify-between gap-2">
-            <Link to={`/food/${food.id}`} className="flex-1">
+            <Link to={`/food/${foodId}`} className="flex-1">
               <h4 className="font-bold text-[15px] sm:text-base text-slate-800 hover:text-[#ff4c24] transition-colors line-clamp-1">
                 {food.name}
               </h4>
@@ -113,13 +144,13 @@ export const FoodCard = ({ food }) => {
           </p>
         </div>
 
-        {/* Price */}
+        {/* Price & Category */}
         <div className="mt-3.5 pt-2 flex items-center justify-between">
           <span className="text-lg font-black text-[#ff4c24]">
             ₹{typeof food.price === 'number' ? food.price.toFixed(0) : food.price}
           </span>
           <span className="text-[11px] font-medium text-slate-400 capitalize">
-            {food.category}
+            {categoryName}
           </span>
         </div>
       </div>

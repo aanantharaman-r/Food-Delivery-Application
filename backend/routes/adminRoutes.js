@@ -67,8 +67,8 @@ router.get("/stats", authMiddleware, adminMiddleware, async (req, res) => {
 router.get("/orders", authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const orders = await Order.find()
-      .populate("user", "name email")
-      .populate("items.food", "name image")
+      .populate("user", "name email phone")
+      .populate("items.food", "name image price")
       .sort({ createdAt: -1 });
 
     res.status(200).json({
@@ -118,7 +118,9 @@ router.patch(
         id,
         { $set: { orderStatus } },
         { new: true, runValidators: true }
-      );
+      )
+        .populate("user", "name email phone")
+        .populate("items.food", "name image price");
 
       if (!order) {
         return res.status(404).json({
@@ -142,5 +144,44 @@ router.patch(
     }
   }
 );
+
+// GET: Customers list for Admin
+router.get("/customers", authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const customers = await User.find({ role: "customer" })
+      .select("-password")
+      .sort({ createdAt: -1 });
+
+    // Optional: attach order counts per customer
+    const userIds = customers.map((c) => c._id);
+    const orderCounts = await Order.aggregate([
+      { $match: { user: { $in: userIds } } },
+      { $group: { _id: "$user", count: { $sum: 1 }, totalSpent: { $sum: "$totalAmount" } } },
+    ]);
+
+    const countMap = {};
+    orderCounts.forEach((oc) => {
+      countMap[oc._id.toString()] = { count: oc.count, totalSpent: oc.totalSpent };
+    });
+
+    const customersWithStats = customers.map((c) => ({
+      ...c.toObject(),
+      orderCount: countMap[c._id.toString()]?.count || 0,
+      totalSpent: countMap[c._id.toString()]?.totalSpent || 0,
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: customersWithStats.length,
+      customers: customersWithStats,
+    });
+  } catch (error) {
+    console.error("Admin customers error:", error.message);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch customers",
+    });
+  }
+});
 
 module.exports = router;
