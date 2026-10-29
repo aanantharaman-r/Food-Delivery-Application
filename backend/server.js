@@ -1,11 +1,15 @@
+
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
+
 const foodRoutes = require("./routes/foodRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminRoutes = require("./routes/adminRoutes");
+
 const authMiddleware = require("./middleware/authMiddleware");
 const adminMiddleware = require("./middleware/adminMiddleware");
 
@@ -45,6 +49,7 @@ app.get(
 app.use("/api/foods", foodRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Handle unknown API routes
 app.use("/api", (req, res) => {
