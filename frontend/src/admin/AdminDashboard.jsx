@@ -10,53 +10,145 @@ import {
   TrendingUp,
   Clock,
   CheckCircle,
-  Plus,
   ArrowUpRight,
   ChefHat
 } from 'lucide-react'
 
-const stats = [
+const activities = [
   {
-    title: 'Total Orders',
-    value: '0',
-    note: 'All customer orders',
-    icon: ShoppingBag,
-    color: '#f97316',
-    bg: '#fff1e8'
-  },
-  {
-    title: 'Total Foods',
-    value: '0',
-    note: 'Items in your menu',
-    icon: UtensilsCrossed,
-    color: '#16a34a',
-    bg: '#eaf8ef'
-  },
-  {
-    title: 'Total Users',
-    value: '0',
-    note: 'Registered customers',
     icon: Users,
+    title: 'User Management',
+    desc: 'Manage registered customers',
     color: '#7c3aed',
     bg: '#f2eefe'
   },
   {
-    title: 'Total Revenue',
-    value: '₹0',
-    note: 'Revenue from orders',
-    icon: IndianRupee,
-    color: '#0284c7',
-    bg: '#e8f5fe'
+    icon: UtensilsCrossed,
+    title: 'Food Management',
+    desc: 'Manage your menu items',
+    color: '#16a34a',
+    bg: '#eaf8ef'
+  },
+  {
+    icon: ShoppingBag,
+    title: 'Order Management',
+    desc: 'View and manage orders',
+    color: '#f97316',
+    bg: '#fff1e8'
   }
 ]
 
-const activities = [
-  { icon: Users, title: 'User Management', desc: 'Manage registered customers', color: '#7c3aed', bg: '#f2eefe' },
-  { icon: UtensilsCrossed, title: 'Food Management', desc: 'Manage your menu items', color: '#16a34a', bg: '#eaf8ef' },
-  { icon: ShoppingBag, title: 'Order Management', desc: 'View and manage orders', color: '#f97316', bg: '#fff1e8' }
-]
-
 export default function AdminDashboard() {
+  const { token } = useAuth()
+
+  const [dashboardStats, setDashboardStats] = useState({
+    totalOrders: 0,
+    totalFoods: 0,
+    totalUsers: 0,
+    totalRevenue: 0
+  })
+
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [backendConnected, setBackendConnected] = useState(false)
+
+  useEffect(() => {
+    const fetchDashboardStats = async () => {
+      if (!token) {
+        setError('Login session not found. Please login again.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        setLoading(true)
+        setError('')
+
+        const response = await fetch(
+          'http://localhost:5000/api/admin/stats',
+          {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        )
+
+        const data = await response.json()
+
+        if (!response.ok || !data.success) {
+          throw new Error(
+            data.message || 'Failed to load dashboard statistics'
+          )
+        }
+
+        setDashboardStats({
+          totalOrders: data.stats.totalOrders ?? 0,
+          totalFoods: data.stats.totalFoods ?? 0,
+          totalUsers: data.stats.totalUsers ?? 0,
+          totalRevenue: data.stats.totalRevenue ?? 0
+        })
+
+        setBackendConnected(true)
+      } catch (err) {
+        setBackendConnected(false)
+        setError(
+          err.message === 'Failed to fetch'
+            ? 'Backend connect aagala. Backend server running-ah nu check pannunga.'
+            : err.message
+        )
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchDashboardStats()
+  }, [token])
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-IN', {
+      style: 'currency',
+      currency: 'INR',
+      maximumFractionDigits: 0
+    }).format(amount)
+  }
+
+  const stats = [
+    {
+      title: 'Total Orders',
+      value: dashboardStats.totalOrders.toLocaleString('en-IN'),
+      note: 'All customer orders',
+      icon: ShoppingBag,
+      color: '#f97316',
+      bg: '#fff1e8'
+    },
+    {
+      title: 'Total Foods',
+      value: dashboardStats.totalFoods.toLocaleString('en-IN'),
+      note: 'Items in your menu',
+      icon: UtensilsCrossed,
+      color: '#16a34a',
+      bg: '#eaf8ef'
+    },
+    {
+      title: 'Total Users',
+      value: dashboardStats.totalUsers.toLocaleString('en-IN'),
+      note: 'Registered users',
+      icon: Users,
+      color: '#7c3aed',
+      bg: '#f2eefe'
+    },
+    {
+      title: 'Total Revenue',
+      value: formatCurrency(dashboardStats.totalRevenue),
+      note: 'Revenue from paid orders',
+      icon: IndianRupee,
+      color: '#0284c7',
+      bg: '#e8f5fe'
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-[#fffaf6] text-gray-800">
       <header className="sticky top-0 z-20 border-b border-orange-100 bg-white/95 backdrop-blur">
@@ -65,16 +157,23 @@ export default function AdminDashboard() {
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-orange-500 text-white shadow-md shadow-orange-200">
               <ChefHat size={24} />
             </div>
+
             <div>
               <h1 className="text-lg font-extrabold tracking-tight sm:text-xl">
                 Foodie <span className="text-orange-500">Admin</span>
               </h1>
-              <p className="text-xs text-gray-500">Management Dashboard</p>
+              <p className="text-xs text-gray-500">
+                Management Dashboard
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 rounded-full border border-orange-100 bg-orange-50 px-3 py-2">
-            <span className="h-2 w-2 rounded-full bg-green-500" />
+            <span
+              className={`h-2 w-2 rounded-full ${
+                backendConnected ? 'bg-green-500' : 'bg-gray-400'
+              }`}
+            />
             <span className="text-xs font-semibold text-gray-600 sm:text-sm">
               Admin Panel
             </span>
@@ -89,9 +188,11 @@ export default function AdminDashboard() {
               <LayoutDashboard size={16} />
               <span>Dashboard / Overview</span>
             </div>
+
             <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">
               Welcome back, Admin 👋
             </h2>
+
             <p className="mt-2 text-sm text-gray-500">
               Here's what's happening with your food delivery store.
             </p>
@@ -103,6 +204,16 @@ export default function AdminDashboard() {
           </div>
         </div>
 
+        {error && (
+          <div
+            role="alert"
+            className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+          >
+            <p className="font-semibold">Dashboard data load aagala</p>
+            <p className="mt-1">{error}</p>
+          </div>
+        )}
+
         <section className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
           {stats.map((item) => {
             const Icon = item.icon
@@ -112,25 +223,33 @@ export default function AdminDashboard() {
                 key={item.title}
                 className="rounded-2xl border border-orange-100/80 bg-white p-5 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-lg"
               >
-                <div className="flex items-start justify-between">
+                <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-medium text-gray-500">
                       {item.title}
                     </p>
-                    <h3 className="mt-3 text-3xl font-extrabold tracking-tight">
-                      {item.value}
+
+                    <h3 className="mt-3 break-words text-2xl font-extrabold tracking-tight sm:text-3xl">
+                      {loading ? '...' : item.value}
                     </h3>
                   </div>
+
                   <div
-                    className="flex h-12 w-12 items-center justify-center rounded-2xl"
-                    style={{ backgroundColor: item.bg, color: item.color }}
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl"
+                    style={{
+                      backgroundColor: item.bg,
+                      color: item.color
+                    }}
                   >
                     <Icon size={23} />
                   </div>
                 </div>
+
                 <div className="mt-5 flex items-center gap-2 border-t border-gray-100 pt-4">
                   <ArrowUpRight size={15} className="text-orange-500" />
-                  <span className="text-xs text-gray-500">{item.note}</span>
+                  <span className="text-xs text-gray-500">
+                    {item.note}
+                  </span>
                 </div>
               </div>
             )
@@ -146,6 +265,7 @@ export default function AdminDashboard() {
                   Manage your food delivery operations
                 </p>
               </div>
+
               <div className="rounded-xl bg-orange-50 p-3 text-orange-500">
                 <LayoutDashboard size={21} />
               </div>
@@ -162,11 +282,16 @@ export default function AdminDashboard() {
                   >
                     <div
                       className="mb-4 flex h-10 w-10 items-center justify-center rounded-xl"
-                      style={{ backgroundColor: item.bg, color: item.color }}
+                      style={{
+                        backgroundColor: item.bg,
+                        color: item.color
+                      }}
                     >
                       <Icon size={20} />
                     </div>
+
                     <h4 className="font-bold">{item.title}</h4>
+
                     <p className="mt-2 text-xs leading-5 text-gray-500">
                       {item.desc}
                     </p>
@@ -181,34 +306,84 @@ export default function AdminDashboard() {
               <div className="rounded-xl bg-green-50 p-3 text-green-600">
                 <CheckCircle size={22} />
               </div>
+
               <div>
                 <h3 className="font-bold">System Status</h3>
-                <p className="text-xs text-gray-500">Dashboard overview</p>
+                <p className="text-xs text-gray-500">
+                  Dashboard overview
+                </p>
               </div>
             </div>
 
             <div className="mt-6 space-y-4">
               <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
-                <span className="text-sm text-gray-600">Admin dashboard</span>
-                <span className="text-xs font-semibold text-green-600">Ready</span>
+                <span className="text-sm text-gray-600">
+                  Admin dashboard
+                </span>
+                <span className="text-xs font-semibold text-green-600">
+                  Ready
+                </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
-                <span className="text-sm text-gray-600">Backend connection</span>
-                <span className="text-xs font-semibold text-gray-500">Not checked</span>
+
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 p-3">
+                <span className="text-sm text-gray-600">
+                  Backend connection
+                </span>
+
+                <span
+                  className={`text-xs font-semibold ${
+                    loading
+                      ? 'text-orange-500'
+                      : backendConnected
+                        ? 'text-green-600'
+                        : 'text-red-500'
+                  }`}
+                >
+                  {loading
+                    ? 'Checking...'
+                    : backendConnected
+                      ? 'Connected'
+                      : 'Failed'}
+                </span>
               </div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 p-3">
-                <span className="text-sm text-gray-600">Recent activity</span>
-                <span className="text-xs font-semibold text-gray-500">No data</span>
+
+              <div className="flex items-center justify-between gap-3 rounded-xl bg-gray-50 p-3">
+                <span className="text-sm text-gray-600">
+                  Dashboard data
+                </span>
+
+                <span
+                  className={`text-xs font-semibold ${
+                    loading
+                      ? 'text-orange-500'
+                      : error
+                        ? 'text-red-500'
+                        : 'text-green-600'
+                  }`}
+                >
+                  {loading
+                    ? 'Loading...'
+                    : error
+                      ? 'Unavailable'
+                      : 'Loaded'}
+                </span>
               </div>
             </div>
 
             <div className="mt-5 rounded-xl bg-orange-50 p-4">
               <div className="flex items-center gap-2 text-orange-600">
                 <Clock size={17} />
-                <span className="text-sm font-bold">Next step</span>
+                <span className="text-sm font-bold">
+                  Dashboard Status
+                </span>
               </div>
+
               <p className="mt-2 text-sm leading-6 text-gray-600">
-                Connect dashboard statistics to your MongoDB data.
+                {loading
+                  ? 'MongoDB statistics load aagittu irukku.'
+                  : error
+                    ? 'Backend server, login token, API route check pannunga.'
+                    : 'Dashboard MongoDB statistics successfully load panniyachu.'}
               </p>
             </div>
           </div>
