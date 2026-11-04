@@ -9,7 +9,11 @@ import {
   LogOut, 
   Clock,
   UtensilsCrossed,
-  Sparkles
+  Sparkles,
+  Home,
+  BookOpen,
+  Smartphone,
+  PhoneCall
 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useAuth } from '../context/AuthContext'
@@ -83,33 +87,39 @@ export const Navbar = ({ onTriggerLoading }) => {
             </span>
           </Link>
 
-          {/* Desktop Nav Links: Home, Menu, Mobile App, Contact Us */}
-          <nav className="hidden md:flex items-center gap-8 text-[15px] font-medium text-slate-600">
+          {/* Desktop Nav Links: Modern Pill Floating Bar with Micro-interactions */}
+          <nav className="hidden md:flex items-center gap-1.5 p-1.5 bg-slate-100/90 backdrop-blur-md rounded-full border border-slate-200/90 shadow-sm transition-all">
             <button 
               onClick={() => scrollToSection('home')} 
-              className={`transition-colors hover:text-[#ff4c24] cursor-pointer ${
-                location.pathname === '/' ? 'text-slate-900 font-semibold border-b-2 border-slate-900 pb-1' : ''
+              className={`flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full transition-all duration-300 cursor-pointer ${
+                location.pathname === '/' 
+                  ? 'bg-white text-[#ff4c24] shadow-md shadow-orange-500/10 scale-102 ring-1 ring-slate-200/50' 
+                  : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
               }`}
             >
-              home
+              <Home className="w-4 h-4" />
+              <span>Home</span>
             </button>
             <button 
               onClick={() => scrollToSection('explore-menu')} 
-              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+              className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full text-slate-600 hover:text-[#ff4c24] hover:bg-white hover:shadow-sm transition-all duration-300 cursor-pointer"
             >
-              menu
+              <BookOpen className="w-4 h-4" />
+              <span>Menu</span>
             </button>
             <button 
               onClick={() => scrollToSection('download-app')} 
-              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+              className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full text-slate-600 hover:text-[#ff4c24] hover:bg-white hover:shadow-sm transition-all duration-300 cursor-pointer"
             >
-              mobile-app
+              <Smartphone className="w-4 h-4" />
+              <span>App</span>
             </button>
             <button 
               onClick={() => scrollToSection('contact-us')} 
-              className="transition-colors hover:text-[#ff4c24] cursor-pointer"
+              className="flex items-center gap-2 px-4 py-1.5 text-sm font-semibold rounded-full text-slate-600 hover:text-[#ff4c24] hover:bg-white hover:shadow-sm transition-all duration-300 cursor-pointer"
             >
-              contact us
+              <PhoneCall className="w-4 h-4" />
+              <span>Contact</span>
             </button>
           </nav>
 
