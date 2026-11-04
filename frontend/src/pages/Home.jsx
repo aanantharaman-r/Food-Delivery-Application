@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { FoodCard } from '../components/FoodCard'
 import { CategoryFilter } from '../components/CategoryFilter'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, AlertCircle, UtensilsCrossed } from 'lucide-react'
 
 const API_BASE = 'http://localhost:5000/api'
 
@@ -13,13 +13,15 @@ export const Home = () => {
   const [foods, setFoods] = useState([])
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   // Fetch live foods & categories from MongoDB
   const fetchMenuData = async () => {
     try {
       setLoading(true)
+      setError('')
       const [foodsRes, catsRes] = await Promise.all([
-        fetch(`${API_BASE}/foods?includeUnavailable=true`),
+        fetch(`${API_BASE}/foods`),
         fetch(`${API_BASE}/categories`)
       ])
 
@@ -28,7 +30,10 @@ export const Home = () => {
 
       if (foodsData.success) {
         setFoods(foodsData.foods || [])
+      } else {
+        throw new Error(foodsData.message || 'Failed to fetch food items')
       }
+
       if (catsData.success) {
         const dbCats = catsData.categories || []
         const mappedCats = [
@@ -50,6 +55,7 @@ export const Home = () => {
       }
     } catch (err) {
       console.error('Failed to load menu data:', err)
+      setError(err.message || 'Failed to load menu data from server.')
     } finally {
       setLoading(false)
     }
@@ -99,6 +105,10 @@ export const Home = () => {
               alt="Delightful food dish"
               className="w-full h-full object-cover rounded-full shadow-2xl ring-8 ring-white/20 animate-spin-slow"
               style={{ animationDuration: '60s' }}
+              onError={(e) => {
+                e.currentTarget.onerror = null
+                e.currentTarget.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=800&q=80'
+              }}
             />
           </div>
 
@@ -155,7 +165,7 @@ export const Home = () => {
                 Top dishes near you
               </h2>
               <p className="text-xs text-slate-400 mt-1">
-                Synced in real-time with our live menu
+                Synced in real-time with our live MongoDB menu
               </p>
             </div>
 
@@ -169,15 +179,31 @@ export const Home = () => {
             )}
           </div>
 
+          {error && (
+            <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                <span>{error}</span>
+              </div>
+              <button
+                onClick={fetchMenuData}
+                className="px-3 py-1 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
           {loading ? (
             <div className="p-16 text-center text-slate-400 space-y-3">
               <RefreshCw size={28} className="animate-spin mx-auto text-[#ff4c24]" />
-              <p className="text-sm font-semibold">Loading dishes...</p>
+              <p className="text-sm font-semibold">Loading dishes from MongoDB...</p>
             </div>
           ) : filteredFoods.length === 0 ? (
-            <div className="p-12 text-center text-slate-400">
+            <div className="p-12 text-center text-slate-400 bg-slate-50 rounded-3xl border border-slate-100">
+              <UtensilsCrossed size={36} className="mx-auto text-slate-300 mb-2" />
               <p className="text-base font-semibold text-slate-700">No dishes available in this category.</p>
-              <p className="text-xs text-slate-400 mt-1">Check back later or choose another category.</p>
+              <p className="text-xs text-slate-400 mt-1">Check back later or choose another category above.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-7">

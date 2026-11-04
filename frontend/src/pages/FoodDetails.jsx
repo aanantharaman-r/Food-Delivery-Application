@@ -10,12 +10,12 @@ import {
   CheckCircle2, 
   Share2, 
   ShieldCheck, 
-  ShoppingBag,
+  ShoppingBag, 
   Sparkles,
   Ban,
-  RefreshCw
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react'
-import { RESTAURANTS } from '../data/mockData'
 import { useCart } from '../context/CartContext'
 import { useToast } from '../components/Toast'
 import { FoodCard } from '../components/FoodCard'
@@ -32,38 +32,44 @@ export const FoodDetails = () => {
   const [food, setFood] = useState(null)
   const [relatedFoods, setRelatedFoods] = useState([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
-  useEffect(() => {
-    const fetchFoodDetails = async () => {
-      try {
-        setLoading(true)
-        const res = await fetch(`${API_BASE}/foods/${id}`)
-        const data = await res.json()
+  const fetchFoodDetails = async () => {
+    try {
+      setLoading(true)
+      setError('')
+      const res = await fetch(`${API_BASE}/foods/${id}`)
+      const data = await res.json()
 
-        if (data.success && data.food) {
-          setFood(data.food)
+      if (data.success && data.food) {
+        setFood(data.food)
 
-          // Fetch related foods in same category
-          const catId = data.food.category?._id || data.food.category
-          if (catId) {
-            const relRes = await fetch(`${API_BASE}/foods?category=${catId}`)
-            const relData = await relRes.json()
-            if (relData.success) {
-              setRelatedFoods(
-                (relData.foods || []).filter((f) => f._id !== data.food._id).slice(0, 4)
-              )
-            }
+        // Fetch related foods in same category
+        const catId = data.food.category?._id || data.food.category
+        if (catId) {
+          const relRes = await fetch(`${API_BASE}/foods?category=${catId}`)
+          const relData = await relRes.json()
+          if (relData.success) {
+            setRelatedFoods(
+              (relData.foods || []).filter((f) => (f._id || f.id) !== data.food._id).slice(0, 4)
+            )
           }
         }
-      } catch (err) {
-        console.error('Failed to load food details:', err)
-      } finally {
-        setLoading(false)
+      } else {
+        throw new Error(data.message || 'Food not found')
       }
+    } catch (err) {
+      console.error('Failed to load food details:', err)
+      setError(err.message || 'Unable to load food item.')
+    } finally {
+      setLoading(false)
     }
+  }
 
+  useEffect(() => {
     if (id) {
       fetchFoodDetails()
+      setQuantity(1)
     }
   }, [id])
 
@@ -71,22 +77,35 @@ export const FoodDetails = () => {
     return (
       <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-slate-400">
         <RefreshCw size={32} className="animate-spin text-orange-500 mb-3" />
-        <p className="font-semibold text-sm">Loading dish details...</p>
+        <p className="font-semibold text-sm">Loading dish details from MongoDB...</p>
       </div>
     )
   }
 
-  if (!food) {
+  if (error || !food) {
     return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center">
-        <h2 className="text-xl font-bold text-slate-800 mb-2">Food item not found</h2>
-        <p className="text-xs text-slate-400 mb-6">This item may have been removed or is unavailable.</p>
-        <Link
-          to="/"
-          className="px-6 py-2.5 rounded-full bg-orange-600 text-white font-bold text-xs"
-        >
-          Return to Menu
-        </Link>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-8 text-center max-w-md mx-auto">
+        <div className="w-16 h-16 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center mb-4">
+          <AlertCircle size={32} />
+        </div>
+        <h2 className="text-2xl font-bold text-slate-800 mb-2">Food Item Unavailable</h2>
+        <p className="text-xs sm:text-sm text-slate-500 mb-6">
+          {error || 'This dish may have been deleted, renamed, or is currently unavailable in the menu.'}
+        </p>
+        <div className="flex gap-3">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-5 py-2.5 rounded-full border border-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-50"
+          >
+            Go Back
+          </button>
+          <Link
+            to="/"
+            className="px-6 py-2.5 rounded-full bg-[#ff4c24] text-white font-bold text-xs hover:bg-[#e03a14] shadow-md shadow-orange-500/20"
+          >
+            Explore Menu
+          </Link>
+        </div>
       </div>
     )
   }
@@ -192,7 +211,8 @@ export const FoodDetails = () => {
                     <div className="flex items-center gap-3 bg-slate-100 rounded-2xl p-1.5">
                       <button
                         onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                        className="w-9 h-9 rounded-xl bg-white text-slate-700 flex items-center justify-center hover:bg-slate-200 transition"
+                        className="w-9 h-9 rounded-xl bg-white text-slate-700 flex items-center justify-center hover:bg-slate-200 transition cursor-pointer"
+                        aria-label="Decrease quantity"
                       >
                         <Minus size={16} />
                       </button>
@@ -201,7 +221,8 @@ export const FoodDetails = () => {
                       </span>
                       <button
                         onClick={() => setQuantity((q) => q + 1)}
-                        className="w-9 h-9 rounded-xl bg-white text-slate-700 flex items-center justify-center hover:bg-slate-200 transition"
+                        className="w-9 h-9 rounded-xl bg-white text-slate-700 flex items-center justify-center hover:bg-slate-200 transition cursor-pointer"
+                        aria-label="Increase quantity"
                       >
                         <Plus size={16} />
                       </button>
@@ -209,7 +230,7 @@ export const FoodDetails = () => {
 
                     <button
                       onClick={handleAddToCart}
-                      className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-8 rounded-2xl bg-[#ff4c24] hover:bg-[#e03f1b] text-white font-bold text-sm shadow-lg shadow-orange-200 active:scale-95 transition"
+                      className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 py-3.5 px-8 rounded-2xl bg-[#ff4c24] hover:bg-[#e03f1b] text-white font-bold text-sm shadow-lg shadow-orange-200 active:scale-95 transition cursor-pointer"
                     >
                       <ShoppingBag size={18} />
                       <span>Add to Cart (₹{food.price * quantity})</span>
@@ -232,7 +253,7 @@ export const FoodDetails = () => {
             <h3 className="text-2xl font-bold text-slate-800">You might also like</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
               {relatedFoods.map((item) => (
-                <FoodCard key={item._id} food={item} />
+                <FoodCard key={item._id || item.id} food={item} />
               ))}
             </div>
           </div>

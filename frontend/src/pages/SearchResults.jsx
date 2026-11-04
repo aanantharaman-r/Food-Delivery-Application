@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { Search, Sparkles, Utensils, Store, RefreshCw } from 'lucide-react'
+import { Search, Sparkles, Utensils, Store, RefreshCw, AlertCircle } from 'lucide-react'
 import { RESTAURANTS } from '../data/mockData'
 import { FoodCard } from '../components/FoodCard'
 import { RestaurantCard } from '../components/RestaurantCard'
@@ -13,22 +13,35 @@ export const SearchResults = () => {
   const [searchInput, setSearchInput] = useState(query)
   const [dbFoods, setDbFoods] = useState([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
-  // Fetch foods matching query from backend
+  // Sync searchInput when URL query changes
+  useEffect(() => {
+    setSearchInput(query)
+  }, [query])
+
+  // Fetch foods matching query from backend MongoDB
   useEffect(() => {
     const fetchSearchFoods = async () => {
+      if (!query.trim()) {
+        setDbFoods([])
+        return
+      }
+
       try {
         setLoading(true)
-        const url = query
-          ? `${API_BASE}/foods?search=${encodeURIComponent(query)}&includeUnavailable=true`
-          : `${API_BASE}/foods?includeUnavailable=true`
+        setError('')
+        const url = `${API_BASE}/foods?search=${encodeURIComponent(query.trim())}`
         const res = await fetch(url)
         const data = await res.json()
         if (data.success) {
           setDbFoods(data.foods || [])
+        } else {
+          throw new Error(data.message || 'Search failed')
         }
       } catch (err) {
         console.error('Failed to search foods:', err)
+        setError(err.message || 'Could not fetch search results.')
       } finally {
         setLoading(false)
       }
@@ -71,13 +84,13 @@ export const SearchResults = () => {
               type="text"
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              placeholder="Search for burgers, pizza, sushi, salads..."
+              placeholder="Search dishes (e.g. burger, pizza, biryani, noodles)..."
               className="w-full pl-12 pr-28 py-4 bg-white rounded-3xl border border-slate-200 shadow-md text-sm font-medium text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-[#ff4c24]"
             />
             <Search className="w-5 h-5 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <button
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-[#ff4c24] hover:bg-[#e03a14] text-white font-bold text-xs rounded-2xl shadow-sm transition-all"
+              className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-[#ff4c24] hover:bg-[#e03a14] text-white font-bold text-xs rounded-2xl shadow-sm transition-all cursor-pointer"
             >
               Search
             </button>
@@ -91,17 +104,24 @@ export const SearchResults = () => {
           )}
         </div>
 
+        {error && (
+          <div className="max-w-2xl mx-auto p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+            <span>{error}</span>
+          </div>
+        )}
+
         {loading ? (
           <div className="p-16 text-center text-slate-400 space-y-3">
             <RefreshCw size={28} className="animate-spin mx-auto text-[#ff4c24]" />
-            <p className="text-sm font-semibold">Searching menu items...</p>
+            <p className="text-sm font-semibold">Searching live MongoDB menu items...</p>
           </div>
         ) : !query ? (
           <div className="bg-white rounded-3xl p-12 text-center max-w-md mx-auto border border-slate-100 shadow-xl">
             <Sparkles className="w-12 h-12 text-orange-500 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-slate-900 mb-1">Craving Something Delicious?</h3>
             <p className="text-xs text-slate-500 mb-6">
-              Enter any dish name, cuisine, or restaurant to see live suggestions.
+              Enter any dish name, cuisine, or restaurant to see live dishes from our database.
             </p>
           </div>
         ) : totalResults === 0 ? (
@@ -109,11 +129,11 @@ export const SearchResults = () => {
             <Utensils className="w-12 h-12 text-slate-300 mx-auto mb-3" />
             <h3 className="text-lg font-bold text-slate-900 mb-1">No matches found</h3>
             <p className="text-xs text-slate-500 mb-6">
-              We couldn't find anything matching "{query}". Try checking for spelling or search for popular items like Burgers or Biryani.
+              We couldn't find anything matching "{query}". Check spelling or browse our full menu.
             </p>
             <Link
               to="/"
-              className="inline-block px-6 py-2.5 bg-[#ff4c24] text-white font-bold text-xs rounded-full shadow-md"
+              className="inline-block px-6 py-2.5 bg-[#ff4c24] hover:bg-[#e03a14] text-white font-bold text-xs rounded-full shadow-md transition"
             >
               Back to Home Menu
             </Link>
@@ -131,7 +151,7 @@ export const SearchResults = () => {
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {dbFoods.map((food) => (
-                    <FoodCard key={food._id} food={food} />
+                    <FoodCard key={food._id || food.id} food={food} />
                   ))}
                 </div>
               </div>

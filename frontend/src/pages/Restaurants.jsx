@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { Search, SlidersHorizontal, Sparkles, Star } from 'lucide-react'
-import { RESTAURANTS, CATEGORIES } from '../data/mockData'
+import { Search, SlidersHorizontal, Sparkles, Star, RefreshCw } from 'lucide-react'
+import { RESTAURANTS } from '../data/mockData'
 import { RestaurantCard } from '../components/RestaurantCard'
 import { CategoryFilter } from '../components/CategoryFilter'
+
+const API_BASE = 'http://localhost:5000/api'
 
 export const Restaurants = () => {
   const [searchParams, setSearchParams] = useSearchParams()
@@ -13,6 +15,39 @@ export const Restaurants = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState('rating') // 'rating' | 'delivery'
   const [vegOnly, setVegOnly] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [loadingCats, setLoadingCats] = useState(true)
+
+  // Fetch real categories from MongoDB backend
+  useEffect(() => {
+    const fetchCats = async () => {
+      try {
+        setLoadingCats(true)
+        const res = await fetch(`${API_BASE}/categories`)
+        const data = await res.json()
+        if (data.success && Array.isArray(data.categories)) {
+          setCategories([
+            {
+              id: 'all',
+              name: 'All Cuisines',
+              image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+            },
+            ...data.categories.map(c => ({
+              id: c._id,
+              name: c.name,
+              image: c.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+            }))
+          ])
+        }
+      } catch (err) {
+        console.error('Failed to load categories:', err)
+      } finally {
+        setLoadingCats(false)
+      }
+    }
+
+    fetchCats()
+  }, [])
 
   const handleCategoryChange = (catId) => {
     setActiveCategory(catId)
@@ -24,9 +59,17 @@ export const Restaurants = () => {
     }
   }
 
-  // Filter logic
+  // Filter logic: resolve category name if matching by MongoDB ID or name
+  const selectedCatObj = categories.find(c => c.id === activeCategory)
+  const selectedCatName = selectedCatObj ? selectedCatObj.name.toLowerCase() : activeCategory.toLowerCase()
+
   let filtered = RESTAURANTS.filter(r => {
-    const matchesCategory = activeCategory === 'all' || r.category === activeCategory
+    const rCat = r.category?.toLowerCase() || ''
+    const matchesCategory = activeCategory === 'all' || 
+      rCat === selectedCatName || 
+      selectedCatName.includes(rCat) || 
+      rCat.includes(selectedCatName)
+
     const matchesSearch = !searchQuery.trim() || 
       r.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.cuisine.toLowerCase().includes(searchQuery.toLowerCase())
@@ -67,21 +110,23 @@ export const Restaurants = () => {
           </div>
         </div>
 
-        {/* Category Filter Chips */}
-        <div>
-          <CategoryFilter
-            categories={CATEGORIES}
-            activeCategory={activeCategory}
-            onCategoryChange={handleCategoryChange}
-          />
-        </div>
+        {/* Category Filter Chips from MongoDB */}
+        {categories.length > 0 && (
+          <div>
+            <CategoryFilter
+              categories={categories}
+              activeCategory={activeCategory}
+              onCategoryChange={handleCategoryChange}
+            />
+          </div>
+        )}
 
         {/* Filter Controls Bar (Veg-Only, Sort by rating) */}
         <div className="flex flex-wrap items-center justify-between gap-4 py-4 border-y border-slate-200/80">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setVegOnly(!vegOnly)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold border transition-all cursor-pointer ${
                 vegOnly
                   ? 'border-emerald-500 bg-emerald-50 text-emerald-700'
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
@@ -101,7 +146,7 @@ export const Restaurants = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-bold text-slate-800 text-xs focus:outline-none focus:border-orange-500"
+              className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 font-bold text-slate-800 text-xs focus:outline-none focus:border-orange-500 cursor-pointer"
             >
               <option value="rating">Highest Rated ★</option>
               <option value="delivery">Fastest Delivery ⚡</option>
@@ -126,7 +171,7 @@ export const Restaurants = () => {
                 setSearchQuery('')
                 setVegOnly(false)
               }}
-              className="px-4 py-2 bg-orange-600 text-white rounded-xl text-xs font-bold"
+              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-xl text-xs font-bold cursor-pointer transition"
             >
               Reset Filters
             </button>

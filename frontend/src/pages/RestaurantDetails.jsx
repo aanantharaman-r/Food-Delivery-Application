@@ -1,33 +1,111 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { 
   Star, 
   Clock, 
   MapPin, 
-  Phone, 
   CheckCircle2, 
   Share2, 
   Heart, 
   Sparkles,
-  ChevronLeft
+  ChevronLeft,
+  UtensilsCrossed,
+  RefreshCw,
+  AlertCircle
 } from 'lucide-react'
-import { RESTAURANTS, FOOD_ITEMS } from '../data/mockData'
+import { RESTAURANTS } from '../data/mockData'
 import { FoodCard } from '../components/FoodCard'
+import { CategoryFilter } from '../components/CategoryFilter'
 import { ReviewsSection } from '../components/ReviewsSection'
 import { useToast } from '../components/Toast'
+
+const API_BASE = 'http://localhost:5000/api'
 
 export const RestaurantDetails = () => {
   const { id } = useParams()
   const { showToast } = useToast()
   const [activeTab, setActiveTab] = useState('menu') // 'menu' | 'reviews' | 'about'
   const [isLiked, setIsLiked] = useState(false)
+  const [activeCategory, setActiveCategory] = useState('all')
 
-  // Find restaurant or fallback to first
+  const [foods, setFoods] = useState([])
+  const [categories, setCategories] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  // Find restaurant metadata or fallback to first
   const restaurantId = parseInt(id, 10)
   const restaurant = RESTAURANTS.find(r => r.id === restaurantId) || RESTAURANTS[0]
-  
-  // Find foods belonging to this restaurant
-  const foods = FOOD_ITEMS.filter(f => f.restaurantId === restaurant.id)
+
+  useEffect(() => {
+    const fetchRestaurantMenu = async () => {
+      try {
+        setLoading(true)
+        setError('')
+
+        const [foodsRes, catsRes] = await Promise.all([
+          fetch(`${API_BASE}/foods`),
+          fetch(`${API_BASE}/categories`)
+        ])
+
+        const foodsData = await foodsRes.json()
+        const catsData = await catsRes.json()
+
+        if (foodsData.success) {
+          // If restaurant has a specific category, filter or include general foods
+          const allFoods = foodsData.foods || []
+          const rCategory = restaurant.category?.toLowerCase()
+          
+          // Relevant foods for this restaurant: matching category or top menu
+          let matched = allFoods.filter(f => {
+            const fCat = typeof f.category === 'object' ? f.category?.name?.toLowerCase() : f.category?.toLowerCase()
+            return fCat && (fCat.includes(rCategory) || rCategory.includes(fCat))
+          })
+
+          // If category filter yields few items, show all foods with restaurant foods prioritized
+          if (matched.length === 0) {
+            matched = allFoods
+          }
+
+          setFoods(matched)
+        } else {
+          throw new Error(foodsData.message || 'Failed to fetch menu')
+        }
+
+        if (catsData.success) {
+          const dbCats = catsData.categories || []
+          setCategories([
+            {
+              id: 'all',
+              name: 'All Items',
+              image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+            },
+            ...dbCats.map(c => ({
+              id: c._id,
+              name: c.name,
+              image: c.image || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=300&q=80'
+            }))
+          ])
+        }
+      } catch (err) {
+        console.error('Failed to load restaurant menu:', err)
+        setError(err.message || 'Could not load menu items.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchRestaurantMenu()
+  }, [restaurant.id, restaurant.category])
+
+  // Category filtering
+  const filteredFoods = activeCategory === 'all'
+    ? foods
+    : foods.filter(f => {
+        const catId = f.category?._id || f.category
+        const catName = f.category?.name?.toLowerCase() || ''
+        return catId === activeCategory || catName === activeCategory.toLowerCase()
+      })
 
   const handleShare = () => {
     if (navigator.share) {
@@ -52,6 +130,10 @@ export const RestaurantDetails = () => {
             src={restaurant.banner || restaurant.image}
             alt={restaurant.name}
             className="w-full h-full object-cover opacity-60"
+            onError={(e) => {
+              e.currentTarget.onerror = null
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=1200&q=80'
+            }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/40 to-transparent" />
         </div>
@@ -76,16 +158,18 @@ export const RestaurantDetails = () => {
                   variant: 'info'
                 })
               }}
-              className={`p-2.5 rounded-full backdrop-blur-md transition-colors ${
+              className={`p-2.5 rounded-full backdrop-blur-md transition-colors cursor-pointer ${
                 isLiked ? 'bg-rose-500 text-white' : 'bg-black/40 text-white hover:bg-black/60'
               }`}
+              aria-label="Favorite restaurant"
             >
               <Heart className={`w-4 h-4 ${isLiked ? 'fill-white' : ''}`} />
             </button>
 
             <button
               onClick={handleShare}
-              className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors"
+              className="p-2.5 rounded-full bg-black/40 backdrop-blur-md text-white hover:bg-black/60 transition-colors cursor-pointer"
+              aria-label="Share restaurant"
             >
               <Share2 className="w-4 h-4" />
             </button>
@@ -96,7 +180,6 @@ export const RestaurantDetails = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
           <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-100 text-slate-800">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-              
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
                   <span className="bg-orange-100 text-orange-700 text-xs font-bold px-2.5 py-0.5 rounded-full">
@@ -135,7 +218,6 @@ export const RestaurantDetails = () => {
                   <p className="text-[11px] text-slate-400">Verified Orders</p>
                 </div>
               </div>
-
             </div>
 
             {/* Quick Stats Grid */}
@@ -159,7 +241,6 @@ export const RestaurantDetails = () => {
                 </p>
               </div>
             </div>
-
           </div>
         </div>
       </div>
@@ -169,17 +250,17 @@ export const RestaurantDetails = () => {
         <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
           <button
             onClick={() => setActiveTab('menu')}
-            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all ${
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'menu'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
             }`}
           >
-            Menu Items ({foods.length})
+            Live Menu ({filteredFoods.length})
           </button>
           <button
             onClick={() => setActiveTab('reviews')}
-            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all ${
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'reviews'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -189,7 +270,7 @@ export const RestaurantDetails = () => {
           </button>
           <button
             onClick={() => setActiveTab('about')}
-            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all ${
+            className={`px-5 py-2.5 rounded-2xl text-sm font-bold transition-all cursor-pointer ${
               activeTab === 'about'
                 ? 'bg-slate-900 text-white shadow-md'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
@@ -199,18 +280,54 @@ export const RestaurantDetails = () => {
           </button>
         </div>
 
-        {/* Tab 1: Menu List */}
+        {/* Tab 1: Menu List with Category Filtering */}
         {activeTab === 'menu' && (
-          <div className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {foods.map((food) => (
-                <FoodCard key={food.id} food={food} />
-              ))}
-            </div>
+          <div className="mt-8 space-y-8">
+            {/* Category Filter for Menu */}
+            {categories.length > 0 && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-bold text-slate-800">Filter Menu by Category</h3>
+                  {activeCategory !== 'all' && (
+                    <button
+                      onClick={() => setActiveCategory('all')}
+                      className="text-xs font-bold text-orange-600 hover:underline cursor-pointer"
+                    >
+                      Show All Categories
+                    </button>
+                  )}
+                </div>
+                <CategoryFilter
+                  categories={categories}
+                  activeCategory={activeCategory}
+                  onCategoryChange={(catId) => setActiveCategory(prev => prev === catId ? 'all' : catId)}
+                />
+              </div>
+            )}
 
-            {foods.length === 0 && (
+            {error && (
+              <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-sm flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                <span>{error}</span>
+              </div>
+            )}
+
+            {loading ? (
+              <div className="p-16 text-center text-slate-400 space-y-3">
+                <RefreshCw size={28} className="animate-spin mx-auto text-[#ff4c24]" />
+                <p className="text-sm font-semibold">Loading real dishes from kitchen database...</p>
+              </div>
+            ) : filteredFoods.length === 0 ? (
               <div className="text-center py-12 bg-white rounded-3xl border border-slate-100">
-                <p className="text-slate-500 font-medium">No menu items found for this restaurant right now.</p>
+                <UtensilsCrossed size={36} className="mx-auto text-slate-300 mb-2" />
+                <p className="text-slate-700 font-bold">No dishes available under this category.</p>
+                <p className="text-xs text-slate-400 mt-1">Please select "All Items" to view the complete menu.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {filteredFoods.map((food) => (
+                  <FoodCard key={food._id || food.id} food={food} />
+                ))}
               </div>
             )}
           </div>
@@ -249,9 +366,7 @@ export const RestaurantDetails = () => {
             </div>
           </div>
         )}
-
       </div>
-
     </div>
   )
 }
