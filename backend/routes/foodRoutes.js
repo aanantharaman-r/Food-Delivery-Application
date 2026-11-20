@@ -8,13 +8,14 @@ const Category = require("../models/Category");
 const authMiddleware = require("../middleware/authMiddleware");
 const adminMiddleware = require("../middleware/adminMiddleware");
 
-// GET foods with search and filters (Customer-facing: filters by isAvailable=true unless all=true is passed)
+// GET foods with search and filters (Returns dishes; customer views display unavailable items with badges and blocked ordering)
 router.get("/", async (req, res) => {
   try {
-    const { search, category, minPrice, maxPrice, includeUnavailable } = req.query;
+    const { search, category, minPrice, maxPrice, onlyAvailable, includeUnavailable } = req.query;
 
     const filter = {};
-    if (includeUnavailable !== "true" && includeUnavailable !== true) {
+    // Only filter out unavailable if explicitly requested via onlyAvailable=true
+    if (onlyAvailable === "true") {
       filter.isAvailable = true;
     }
 

@@ -231,11 +231,13 @@ export default function AdminFoods() {
         )
       )
 
+      const activeToken = token || localStorage.getItem('foodie_token')
+
       const response = await fetch(`${API_BASE}/foods/${food._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
+          Authorization: `Bearer ${activeToken}`
         },
         body: JSON.stringify({ isAvailable: updatedAvailability })
       })
@@ -248,6 +250,13 @@ export default function AdminFoods() {
             f._id === food._id ? { ...f, isAvailable: food.isAvailable } : f
           )
         )
+        if (response.status === 401 || data.message?.includes('token')) {
+          showNotification(
+            'error',
+            'Your admin session expired. Please log in again to update availability.'
+          )
+          return
+        }
         throw new Error(data.message || 'Failed to update availability')
       }
 
@@ -462,17 +471,18 @@ export default function AdminFoods() {
                       {/* Availability Toggle */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <button
+                          type="button"
                           onClick={() => handleToggleAvailability(food)}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer border ${
+                          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all shadow-2xs active:scale-95 cursor-pointer border ${
                             food.isAvailable
-                              ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                              : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300 hover:bg-emerald-100'
+                              : 'bg-rose-50 text-rose-700 border-rose-300 hover:bg-rose-100'
                           }`}
-                          title="Click to toggle availability"
+                          title={`Click to mark as ${food.isAvailable ? 'Unavailable' : 'Available'}`}
                         >
                           <span
-                            className={`h-2 w-2 rounded-full ${
-                              food.isAvailable ? 'bg-emerald-500' : 'bg-rose-500'
+                            className={`h-2.5 w-2.5 rounded-full transition-colors ${
+                              food.isAvailable ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'
                             }`}
                           />
                           <span>{food.isAvailable ? 'Available' : 'Unavailable'}</span>
