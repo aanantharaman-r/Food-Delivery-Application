@@ -91,6 +91,25 @@ export const AuthProvider = ({ children }) => {
     setIsLoggedIn(false)
   }
 
+  // Quick auto-refresh / sync check on mount
+  React.useEffect(() => {
+    const storedToken = localStorage.getItem('foodie_token')
+    const storedUser = localStorage.getItem('foodie_user')
+    if (storedToken && storedUser) {
+      // Validate token with backend
+      fetch('http://localhost:5000/api/auth/profile', {
+        headers: { Authorization: `Bearer ${storedToken}` }
+      })
+      .then(res => {
+        if (res.status === 401) {
+          // Token is truly expired on backend, clear invalid session
+          logout()
+        }
+      })
+      .catch(() => {})
+    }
+  }, [])
+
   const updateUser = (updates) => {
     setUser((previous) => {
       if (!previous) return null

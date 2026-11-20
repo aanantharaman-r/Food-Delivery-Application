@@ -221,6 +221,12 @@ export default function AdminFoods() {
 
   // Quick toggle availability directly from table
   const handleToggleAvailability = async (food) => {
+    const activeToken = token || localStorage.getItem('foodie_token')
+    if (!activeToken) {
+      showNotification('error', 'You must be logged in as an admin. Please log in again.')
+      return
+    }
+
     try {
       const updatedAvailability = !food.isAvailable
 
@@ -230,8 +236,6 @@ export default function AdminFoods() {
           f._id === food._id ? { ...f, isAvailable: updatedAvailability } : f
         )
       )
-
-      const activeToken = token || localStorage.getItem('foodie_token')
 
       const response = await fetch(`${API_BASE}/foods/${food._id}`, {
         method: 'PUT',
@@ -250,10 +254,10 @@ export default function AdminFoods() {
             f._id === food._id ? { ...f, isAvailable: food.isAvailable } : f
           )
         )
-        if (response.status === 401 || data.message?.includes('token')) {
+        if (response.status === 401 || data.message?.includes('token') || data.message?.includes('denied')) {
           showNotification(
             'error',
-            'Your admin session expired. Please log in again to update availability.'
+            'Your admin session expired. Please re-login at /login with aj@gmail.com and admin123.'
           )
           return
         }
