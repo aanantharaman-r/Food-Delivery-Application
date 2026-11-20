@@ -51,6 +51,9 @@ export const CartProvider = ({ children }) => {
     }
   })
 
+  // Helper to get consistent item id
+  const getItemId = (food) => (food ? (food._id || food.id) : '')
+
   // Automatically sync cart to localStorage
   useEffect(() => {
     localStorage.setItem('foodie_cart', JSON.stringify(items))
@@ -65,11 +68,14 @@ export const CartProvider = ({ children }) => {
       const data = await res.json()
       if (data.success && Array.isArray(data.foods)) {
         const foodMap = new Map()
-        data.foods.forEach(f => foodMap.set(f._id, f))
+        data.foods.forEach(f => {
+          if (f && f._id) foodMap.set(f._id, f)
+        })
 
         setItems(prevItems => {
           let hasChanges = false
           const updated = prevItems.map(item => {
+            if (!item || !item.food) return item
             const id = getItemId(item.food)
             const latest = foodMap.get(id)
             if (latest) {

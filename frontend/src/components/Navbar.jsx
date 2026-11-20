@@ -182,17 +182,23 @@ export const Navbar = ({ onTriggerLoading }) => {
             </Link>
 
             {/* Sign In button or Profile Avatar */}
-            {isLoggedIn ? (
+            {isLoggedIn && user ? (
               <div className="relative">
                 <button
                   onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
                   className="flex items-center gap-2 p-1 rounded-full hover:bg-slate-100 transition-colors cursor-pointer"
                 >
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="w-8 h-8 rounded-full object-cover ring-2 ring-[#ff4c24]"
-                  />
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt={user.name || 'User'}
+                      className="w-8 h-8 rounded-full object-cover ring-2 ring-[#ff4c24]"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-orange-100 text-orange-600 font-bold flex items-center justify-center text-xs ring-2 ring-[#ff4c24]">
+                      {user.name ? user.name[0].toUpperCase() : 'U'}
+                    </div>
+                  )}
                 </button>
 
                 {profileDropdownOpen && (
@@ -201,8 +207,8 @@ export const Navbar = ({ onTriggerLoading }) => {
                     onMouseLeave={() => setProfileDropdownOpen(false)}
                   >
                     <div className="px-4 py-2 border-b border-slate-100">
-                      <p className="text-xs font-bold text-slate-900 truncate">{user.name}</p>
-                      <p className="text-[11px] text-slate-400 truncate">{user.email}</p>
+                      <p className="text-xs font-bold text-slate-900 truncate">{user.name || 'Account'}</p>
+                      <p className="text-[11px] text-slate-400 truncate">{user.email || ''}</p>
                     </div>
                     
                     <Link
