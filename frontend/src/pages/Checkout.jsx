@@ -29,7 +29,8 @@ export const Checkout = () => {
     cartCount,
     selectedAddress,
     placeOrder,
-    removeUnavailableItems
+    removeUnavailableItems,
+    validateCartItems
   } = useCart()
   const { user, token } = useAuth()
   const { showToast } = useToast()
@@ -38,6 +39,13 @@ export const Checkout = () => {
   const [deliveryNotes, setDeliveryNotes] = useState('')
   const [isProcessing, setIsProcessing] = useState(false)
   const [checkoutError, setCheckoutError] = useState('')
+
+  // Revalidate cart items when Checkout page loads
+  React.useEffect(() => {
+    if (validateCartItems) {
+      validateCartItems()
+    }
+  }, [])
 
   if (items.length === 0) {
     navigate('/cart')
@@ -61,6 +69,19 @@ export const Checkout = () => {
     setIsProcessing(true)
 
     try {
+      // Re-verify cart availability right before placing order
+      if (validateCartItems) {
+        await validateCartItems()
+      }
+
+      // Recheck after revalidation
+      const currentUnavailable = items.filter(i => i.food && i.food.isAvailable === false)
+      if (currentUnavailable.length > 0) {
+        throw new Error(
+          `"${currentUnavailable.map(i => i.food.name).join(', ')}" is out of stock. Please remove it from your cart.`
+        )
+      }
+
       let savedDbOrder = null
 
       // Save to real MongoDB if customer is logged in

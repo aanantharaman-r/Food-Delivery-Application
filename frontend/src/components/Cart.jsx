@@ -1,10 +1,28 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { ShoppingBag, Plus, Minus, Trash2 } from 'lucide-react'
+import React, { useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import { ShoppingBag, Plus, Minus, Trash2, Ban } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 
 export const Cart = () => {
-  const { items, total, cartCount, removeItem, increaseQuantity, decreaseQuantity } = useCart()
+  const navigate = useNavigate()
+  const { 
+    items, 
+    total, 
+    cartCount, 
+    removeItem, 
+    increaseQuantity, 
+    decreaseQuantity,
+    removeUnavailableItems,
+    validateCartItems
+  } = useCart()
+
+  useEffect(() => {
+    if (validateCartItems) {
+      validateCartItems()
+    }
+  }, [])
+
+  const hasUnavailableItems = items.some(item => item.food && item.food.isAvailable === false)
 
   if (items.length === 0) {
     return (
@@ -90,16 +108,32 @@ export const Cart = () => {
       </div>
 
       <div className="mt-4 pt-4 border-t border-slate-100 space-y-3">
+        {hasUnavailableItems && (
+          <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] flex items-center justify-between gap-2">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <Ban size={14} className="shrink-0 text-rose-500" />
+              <span className="font-semibold truncate">Out of stock items present</span>
+            </div>
+            <button
+              onClick={removeUnavailableItems}
+              className="text-[10px] font-bold text-rose-600 hover:text-rose-800 underline shrink-0 cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-slate-500">Subtotal</span>
           <span className="font-black text-sm text-slate-900">₹{total.toFixed(2)}</span>
         </div>
-        <Link
-          to="/checkout"
-          className="block w-full text-center py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/20 transition-all cursor-pointer"
+        <button
+          onClick={() => navigate('/checkout')}
+          disabled={hasUnavailableItems}
+          className="block w-full text-center py-2.5 bg-orange-600 hover:bg-orange-500 text-white font-bold text-xs rounded-xl shadow-md shadow-orange-500/20 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-orange-600"
         >
-          Checkout
-        </Link>
+          {hasUnavailableItems ? 'Remove Out of Stock Items' : 'Checkout'}
+        </button>
       </div>
     </div>
   )

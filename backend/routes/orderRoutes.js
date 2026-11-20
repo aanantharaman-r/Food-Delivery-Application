@@ -52,8 +52,10 @@ router.post("/", authMiddleware, async (req, res) => {
     let calculatedSubtotal = 0;
 
     for (const item of items) {
-      const foodId = item.food?._id || item.food?.id || item.foodId || item._id;
-      if (!mongoose.Types.ObjectId.isValid(foodId)) {
+      const foodId = typeof item.food === 'string' 
+        ? item.food 
+        : (item.food?._id || item.food?.id || item.foodId || item._id);
+      if (!foodId || !mongoose.Types.ObjectId.isValid(foodId)) {
         return res.status(400).json({
           success: false,
           message: `Invalid food ID: ${foodId}`,

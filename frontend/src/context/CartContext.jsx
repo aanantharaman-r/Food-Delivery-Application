@@ -51,13 +51,62 @@ export const CartProvider = ({ children }) => {
     }
   })
 
-  // Helper to get consistent item id
-  const getItemId = (food) => food._id || food.id
-
-  // Automatically cleanse cart: remove or notify for items that are invalid or null
+  // Automatically sync cart to localStorage
   useEffect(() => {
     localStorage.setItem('foodie_cart', JSON.stringify(items))
   }, [items])
+
+  // Revalidate cart items against backend to check current availability & prices
+  const validateCartItems = async () => {
+    if (!items || items.length === 0) return
+
+    try {
+      const res = await fetch('http://localhost:5000/api/foods?includeUnavailable=true')
+      const data = await res.json()
+      if (data.success && Array.isArray(data.foods)) {
+        const foodMap = new Map()
+        data.foods.forEach(f => foodMap.set(f._id, f))
+
+        setItems(prevItems => {
+          let hasChanges = false
+          const updated = prevItems.map(item => {
+            const id = getItemId(item.food)
+            const latest = foodMap.get(id)
+            if (latest) {
+              const latestAvail = latest.isAvailable !== false
+              const currentAvail = item.food.isAvailable !== false
+              const latestPrice = Number(latest.price)
+              const currentPrice = Number(item.food.price)
+              if (latestAvail !== currentAvail || latestPrice !== currentPrice || latest.name !== item.food.name) {
+                hasChanges = true
+                return {
+                  ...item,
+                  food: {
+                    ...item.food,
+                    ...latest,
+                    isAvailable: latestAvail
+                  }
+                }
+              }
+            }
+            return item
+          })
+          return hasChanges ? updated : prevItems
+        })
+      }
+    } catch (err) {
+      console.warn('Cart revalidation warning:', err.message)
+    }
+  }
+
+  // Run cart validation on initial mount and when window regains focus
+  useEffect(() => {
+    validateCartItems()
+
+    const onFocus = () => validateCartItems()
+    window.addEventListener('focus', onFocus)
+    return () => window.removeEventListener('focus', onFocus)
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('foodie_coupon', JSON.stringify(appliedCoupon))
@@ -72,19 +121,21 @@ export const CartProvider = ({ children }) => {
   }, [orders])
 
   const addItem = (food, quantity = 1) => {
-    if (!food || food.isAvailable === false) return
+    if (!food) return
+    if (food.isAvailable === false) return
     const id = getItemId(food)
 
     setItems(prev => {
       const existing = prev.find(item => getItemId(item.food) === id)
       if (existing) {
+        if (existing.food?.isAvailable === false) return prev
         return prev.map(item =>
           getItemId(item.food) === id
             ? { ...item, quantity: item.quantity + quantity }
             : item
         )
       }
-      return [...prev, { food, quantity }]
+      return [...prev, { food: { ...food, isAvailable: true }, quantity }]
     })
   }
 
@@ -242,6 +293,7 @@ export const CartProvider = ({ children }) => {
         increaseQuantity,
         clearCart,
         removeUnavailableItems,
+        validateCartItems,
         cartCount,
         subtotal,
         total: grandTotal,

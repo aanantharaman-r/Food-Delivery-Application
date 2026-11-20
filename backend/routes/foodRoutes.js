@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
     const { search, category, minPrice, maxPrice, includeUnavailable } = req.query;
 
     const filter = {};
-    if (includeUnavailable !== "true") {
+    if (includeUnavailable !== "true" && includeUnavailable !== true) {
       filter.isAvailable = true;
     }
 

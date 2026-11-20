@@ -1,6 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { X, ShoppingBag, Plus, Minus, ArrowRight, Ban } from 'lucide-react'
+import { X, ShoppingBag, Plus, Minus, ArrowRight, Ban, Trash2 } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 
 export const CartPage = () => {
@@ -15,8 +15,16 @@ export const CartPage = () => {
     total, 
     cartCount,
     applyCoupon,
-    appliedCoupon
+    appliedCoupon,
+    removeUnavailableItems,
+    validateCartItems
   } = useCart()
+
+  useEffect(() => {
+    if (validateCartItems) {
+      validateCartItems()
+    }
+  }, [])
 
   const [promoInput, setPromoInput] = useState('')
   const [promoMessage, setPromoMessage] = useState('')
@@ -83,11 +91,20 @@ export const CartPage = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Unavailable items alert banner */}
         {hasUnavailableItems && (
-          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex items-center gap-2">
-            <Ban size={18} className="shrink-0 text-rose-500" />
-            <span>
-              One or more items in your cart are currently out of stock. Please remove them before proceeding to checkout.
-            </span>
+          <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs sm:text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-2">
+              <Ban size={20} className="shrink-0 text-rose-500" />
+              <span>
+                <strong>Out of Stock Notice:</strong> One or more items in your cart are currently out of stock. Please remove them to proceed to checkout.
+              </span>
+            </div>
+            <button
+              onClick={removeUnavailableItems}
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shrink-0 transition-colors shadow-xs cursor-pointer flex items-center gap-1.5"
+            >
+              <Trash2 size={13} />
+              <span>Remove Out of Stock Items</span>
+            </button>
           </div>
         )}
 
