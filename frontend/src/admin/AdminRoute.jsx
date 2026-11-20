@@ -7,8 +7,19 @@ export default function AdminRoute() {
   const { isLoggedIn, user, token } = useAuth()
   const location = useLocation()
 
-  // Redirect to login if the user is not authenticated
-  if (!isLoggedIn || !token) {
+  // Safely check token from context or fallback to localStorage
+  const activeToken = token || localStorage.getItem('foodie_token')
+  let activeUser = user
+  if (!activeUser) {
+    try {
+      activeUser = JSON.parse(localStorage.getItem('foodie_user'))
+    } catch {
+      activeUser = null
+    }
+  }
+
+  // Redirect to login if user is not authenticated
+  if (!activeToken) {
     return (
       <Navigate
         to="/login"
@@ -18,11 +29,11 @@ export default function AdminRoute() {
     )
   }
 
-  // Redirect to home if the user is not an admin
-  if (user?.role !== 'admin') {
+  // Redirect to home if user is not an admin
+  if (activeUser?.role !== 'admin') {
     return <Navigate to="/" replace />
   }
 
-  // Allow access only to admin users
+  // Allow access to admin users
   return <Outlet />
 }

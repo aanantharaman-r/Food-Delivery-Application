@@ -219,6 +219,18 @@ export const Navbar = ({ onTriggerLoading }) => {
                       <User className="w-3.5 h-3.5" />
                       Manage Profile
                     </Link>
+
+                    {user.role === 'admin' && (
+                      <Link
+                        to="/admin"
+                        onClick={() => setProfileDropdownOpen(false)}
+                        className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-orange-600 hover:bg-orange-50 bg-orange-50/50"
+                      >
+                        <UtensilsCrossed className="w-3.5 h-3.5 text-orange-600" />
+                        Admin Panel
+                      </Link>
+                    )}
+
                     <Link
                       to="/my-orders"
                       onClick={() => setProfileDropdownOpen(false)}
